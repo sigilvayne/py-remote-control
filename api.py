@@ -1,14 +1,22 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+import threading
+import time
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 CORS(app)
+
 commands = {}
 results = {}
 
+@app.route('/')
+def index():
+    return render_template("connection.html")
+
 @app.route('/set_command/<server_id>', methods=['POST'])
 def set_command(server_id):
-    commands[server_id] = request.json
+    payload = request.json or {}
+    commands[server_id] = payload
     return jsonify({"status": "command_set"})
 
 @app.route('/get_command/<server_id>', methods=['GET'])
