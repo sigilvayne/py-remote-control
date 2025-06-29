@@ -18,7 +18,7 @@ jobs:
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}  
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
@@ -26,3 +26,29 @@ jobs:
         context: .
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
+
+  deploy-to-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install SSH key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+    - name: Deploy and run Docker container on EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          sudo yum update -y
+          sudo amazon-linux-extras enable docker
+          sudo yum install -y docker
+          sudo systemctl enable docker
+          sudo systemctl start docker
+          sudo usermod -a -G docker ec2-user
+          # Просто запускаємо docker команди з sudo
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
+          sudo docker stop control-center || true
+          sudo docker rm control-center || true
+          sudo docker run -d -p 8000:8000 --name control-center ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
+        EOF
