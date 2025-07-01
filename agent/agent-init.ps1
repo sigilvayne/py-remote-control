@@ -2,9 +2,8 @@ $User = "agent-gui"
 $PwdLength = 20
 $Pwd = -join ((33..126) | Get-Random -Count $PwdLength | ForEach-Object {[char]$_})
 $SecurePwd = ConvertTo-SecureString $Pwd -AsPlainText -Force
-$agent = "C:\Script\agent\agent.py"
-$py = "C:\Script\agent\Python\python.exe"
-$run = "`"$py`" `"$agent`""
+$agentExe = "C:\Script\agent\agent.exe"
+$run = "`"$agentExe`""
 $adminGrp = (Get-LocalGroup | Where SID -eq 'S-1-5-32-544').Name
 
 if (-not (Get-LocalUser $User -EA SilentlyContinue)) {
