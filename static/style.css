@@ -1,0 +1,157 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* HEADER */
+header {
+    background-color: #f3f3f3;
+    padding: 4px 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #cccccc;
+    height: 40px;
+    font-size: 13px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 8px;
+    color: #000000;
+}
+
+.user-icon i {
+    font-size: 16px;
+    color: #000000;
+}
+
+.logout-btn {
+    background-color: #e0e0e0;
+    color: #000000;
+    border: none;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: #d0d0d0;
+}
+
+/* MAIN LAYOUT */
+.content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.left-panel,
+.right-panel {
+    width: 25%;
+    padding: 16px;
+    box-sizing: border-box;
+    border-right: 1px solid #e0e0e0;
+    background-color: #fafafa;
+    font-size: 12px;
+}
+
+.right-panel {
+    border-right: none;
+    border-left: 1px solid #e0e0e0;
+}
+
+.main-panel {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+}
+
+/* EDITOR + OUTPUT */
+.command-editor {
+    flex: 0 0 20%;
+    margin-bottom: 10px;
+}
+
+.command-output {
+    flex: 1;
+    background: #ffffff;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    color: #000000; /* чорний текст */
+    font-family: Consolas, monospace;
+}
+
+/* FORM ELEMENTS */
+textarea,
+input,
+select,
+button {
+    width: 100%;
+    padding: 6px;
+    box-sizing: border-box;
+    font-size: 13px;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    color: #000000;
+    margin-top: 5px;
+}
+
+textarea:focus,
+input:focus {
+    outline: none;
+    border-color: #007acc;
+}
+
+/* BUTTONS */
+button {
+    background-color: #007acc;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #005a9e;
+}
+
+/* LISTS */
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+li {
+    padding: 8px;
+    background: #f5f5f5;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+li:hover {
+    background-color: #eaeaea;
+}
+
+/* HEADERS */
+h2 {
+    font-size: 15px;
+    margin-bottom: 10px;
+    color: #000000; /* чорний текст */
+    font-weight: 500;
+}
