@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Зареєстровані сервери</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <h1>Список серверів</h1>
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Server ID</th>
+                <th>Control URL</th>
+                <th>Дата реєстрації</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in servers %}
+            <tr>
+                <td>{{ s.id }}</td>
+                <td>{{ s.server_id }}</td>
+                <td>{{ s.control_url }}</td>
+                <td>{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><a href="/">← Назад</a></p>
+</body>
+</html>

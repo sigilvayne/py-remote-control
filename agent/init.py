@@ -2,6 +2,7 @@ import os
 import json
 import tkinter as tk
 from tkinter import messagebox
+import requests
 
 CONFIG_PATH = "C:/Script/agent/config.json"
 
@@ -17,7 +18,7 @@ if not os.path.exists(CONFIG_PATH):
         with open(CONFIG_PATH, "w") as f:
             json.dump({"server_id": server_id, "control_center_url": control_url}, f)
         messagebox.showinfo("Готово", "Конфігурацію збережено.")
-        root.destroy()
+        root.destroy()  # Закриває вікно і завершує програму
 
     root = tk.Tk()
     root.title("Налаштування агента")
@@ -31,3 +32,11 @@ if not os.path.exists(CONFIG_PATH):
     root.mainloop()
 else:
     print("[INFO] Конфіг уже існує. Повторна ініціалізація не потрібна.")
+
+try:
+    requests.post(control_url + "/register_server", json={
+        "server_id": server_id,
+        "control_center_url": control_url
+    })
+except Exception as e:
+    print(f"[ERROR] Не вдалося зареєструвати сервер: {e}")
