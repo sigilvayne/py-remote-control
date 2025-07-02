@@ -32,8 +32,10 @@
 
         <div class="right-panel">
             <h2>Сервери</h2>
-            <input type="text" id="server-id" placeholder="Введіть ім'я серверу">
+            <ul id="server-list"></ul>
+            <input type="text" id="server-id" placeholder="Введіть ім'я серверу вручну...">
         </div>
+
 
         <div class="main-panel">
             <div class="command-editor">
@@ -84,6 +86,25 @@
 
             output.innerHTML = "<em>Результат не отримано.</em>";
         }
+
+        // Завантажуємо список серверів при відкритті сторінки
+        async function loadServers() {
+            const res = await fetch('/servers');
+            const servers = await res.json();
+            const list = document.getElementById('server-list');
+            list.innerHTML = '';
+            servers.forEach(server => {
+                const li = document.createElement('li');
+                li.textContent = server;
+                li.addEventListener('click', () => {
+                    document.getElementById('server-id').value = server;
+                });
+                list.appendChild(li);
+            });
+        }
+
+        loadServers(); // Виклик під час завантаження сторінки
     </script>
+
 </body>
 </html>

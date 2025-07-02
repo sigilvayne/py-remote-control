@@ -69,6 +69,14 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
 
+@app.route('/servers', methods=['GET'])
+@login_required
+def list_servers():
+    servers = Server.query.order_by(Server.created_at.desc()).all()
+    return jsonify([s.server_id for s in servers])
+
+
+
 # --- Керування командами ---
 @app.route('/set_command/<server_id>', methods=['POST'])
 @login_required
