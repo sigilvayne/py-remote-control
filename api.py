@@ -4,14 +4,18 @@ from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import threading
+import os
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app)
 
 # Налаштування
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'data', 'servers.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+
 app.secret_key = 'very_secret_key_123'
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///servers.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 Session(app)

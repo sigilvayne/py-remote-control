@@ -9,5 +9,7 @@ COPY api.py .
 COPY templates/ ./templates/
 COPY static ./static
 
+RUN mkdir -p /app/data
+
 EXPOSE 8000
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "api:app"]

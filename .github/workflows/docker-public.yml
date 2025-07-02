@@ -50,5 +50,9 @@ jobs:
           sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
           sudo docker stop control-center || true
           sudo docker rm control-center || true
-          sudo docker run -d -p 8000:8000 --name control-center ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
+          mkdir -p /home/ec2-user/data
+          touch /home/ec2-user/data/.keep
+          chown -R ec2-user:ec2-user /home/ec2-user/data
+          chmod 755 /home/ec2-user/data
+          sudo docker run -d -p 8000:8000 --name control-center -v /home/ec2-user/data:/app/data ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
         EOF
