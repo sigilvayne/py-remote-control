@@ -1,33 +1,20 @@
-import time
-import requests
-import subprocess
-import json
-config = json.load(open("C:/Script/agent/config.json"))
-server_id = config["server_id"]
-url = config["control_center_url"]
+import time, requests, subprocess, json
+
+cfg = json.load(open("C:/Script/agent/config.json"))
+sid, url = cfg["server_id"], cfg["control_center_url"]
 
 while True:
     try:
-        r = requests.get(f"{url}/agent_get_command/{server_id}")
+        r = requests.get(f"{url}/agent_get_command/{sid}")
         r.raise_for_status()
-
-        data = r.json()
-        cmd = data.get("command")
-
+        cmd = r.json().get("command")
         if cmd:
-            print(f"[INFO] Виконання команди: {cmd}")
             res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-            response = {
+            requests.post(f"{url}/agent_post_result/{sid}", json={
                 "stdout": res.stdout,
                 "stderr": res.stderr,
                 "code": res.returncode
-            }
-            print(f"[INFO] Відправка результату: {response}")
-            requests.post(f"{url}/agent_post_result/{server_id}", json=response)
-        else:
-            print("[INFO] Команд нема")
-
-    except Exception as e:
-        print(f"[ERROR] Виникла помилка: {e}")
-
+            })
+    except:
+        pass
     time.sleep(5)
