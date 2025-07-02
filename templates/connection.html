@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Центр керування серверами</title>
+    <link rel="icon" type="image/png" href="/static/images/icon.png">
     <link href="https://cdn-uicons.flaticon.com/uicons-thin-straight/css/uicons-thin-straight.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <header>
+        <img src="/static/images/icon.png" alt="Лого" class="header-icon">
         <div class="user-info">
             <div class="user-icon"><i class="fi fi-tr-circle-user"></i></div>
             <div class="username">{{ username }}</div>
             <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
         </div>
     </header>
+
 
     <div class="content">
         <div class="left-panel">
@@ -35,7 +38,6 @@
             <ul id="server-list"></ul>
             <input type="text" id="server-id" placeholder="Введіть ім'я серверу вручну...">
         </div>
-
 
         <div class="main-panel">
             <div class="command-editor">
@@ -87,7 +89,6 @@
             output.innerHTML = "<em>Результат не отримано.</em>";
         }
 
-        // Завантажуємо список серверів при відкритті сторінки
         async function loadServers() {
             const res = await fetch('/servers');
             const servers = await res.json();
@@ -103,8 +104,7 @@
             });
         }
 
-        loadServers(); // Виклик під час завантаження сторінки
+        loadServers();
     </script>
-
 </body>
 </html>
