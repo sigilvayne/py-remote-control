@@ -7,40 +7,45 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    async function sendCommand() {
-        const command = document.getElementById('command-input').value.trim();
+async function sendCommand() {
+    const command = document.getElementById('command-input').value.trim();
+    const sendBtn = document.getElementById('send-btn');
 
-        if (selectedServers.size === 0 || !command) {
-            alert("Оберіть хоча б один сервер та введіть команду.");
-            return;
-        }
+    if (selectedServers.size === 0 || !command) {
+        alert("Оберіть хоча б один сервер та введіть команду.");
+        return;
+    }
 
-        const output = document.getElementById('command-output');
-        output.innerHTML = "<em>Надсилаємо команди...</em>";
+    sendBtn.disabled = true;                    // 🔒 Блокуємо кнопку
+    sendBtn.textContent = "Надсилання...";      // (опціонально) змінюємо текст
 
-        for (const serverId of selectedServers) {
-            await fetch(`/set_command/${serverId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command })
-            });
-        }
+    const output = document.getElementById('command-output');
 
-        output.innerHTML = "<em>Очікуємо результати...</em>";
+    for (const serverId of selectedServers) {
+        await fetch(`/set_command/${serverId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ command })
+        });
+    }
 
-        for (const serverId of selectedServers) {
-            let tries = 30;
-            while (tries-- > 0) {
-                const res = await fetch(`/get_result/${serverId}`);
-                const data = await res.json();
-                if (data.status !== "no_result") {
-                    output.innerHTML += `<div><strong>${serverId}:</strong><br><pre>${data.stdout || JSON.stringify(data)}</pre></div><hr>`;
-                    break;
-                }
-                await new Promise(r => setTimeout(r, 1000));
+    for (const serverId of selectedServers) {
+        let tries = 30;
+        while (tries-- > 0) {
+            const res = await fetch(`/get_result/${serverId}`);
+            const data = await res.json();
+            if (data.status !== "no_result") {
+                output.innerHTML += `<div><strong>${serverId}:</strong><br><pre>${data.stdout || JSON.stringify(data)}</pre></div><hr>`;
+                break;
             }
+            await new Promise(r => setTimeout(r, 1000));
         }
     }
+
+    sendBtn.disabled = false;                   // ✅ Активуємо кнопку назад
+    sendBtn.textContent = "Надіслати";          // Повертаємо текст
+}
+
 
     async function loadServers() {
         const res = await fetch('/servers');

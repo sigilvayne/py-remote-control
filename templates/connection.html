@@ -9,7 +9,10 @@
 </head>
 <body>
     <header>
-        <img src="/static/images/icon.png" alt="Лого" class="header-icon">
+        <div class="header-left">
+            <img src="/static/images/icon.png" alt="Лого" class="header-icon">
+            <div class="header-title">Softcom CLI</div>
+        </div>
         <div class="user-info">
             <div class="user-icon"><i class="fi fi-tr-circle-user"></i></div>
             <div class="username">{{ username }}</div>
@@ -43,7 +46,7 @@
             <div class="command-editor">
                 <h2>Команда</h2>
                 <textarea id="command-input" rows="3" placeholder="Оберіть команду або введіть свою..."></textarea>
-                <button onclick="sendCommand()">Надіслати</button>
+                <button id="send-btn" onclick="sendCommand()" style="font-weight: bold;">Надіслати</button>
             </div>
             <div class="command-output" id="command-output">
             </div>
