@@ -1,3 +1,4 @@
+/* ----------- Головне оформлення ----------- */
 body {
     margin: 0;
     padding: 0;
@@ -9,6 +10,7 @@ body {
     height: 100vh;
 }
 
+/* ----------- Хедер ----------- */
 header {
     background-color: #f3f3f3;
     padding: 4px 8px; 
@@ -48,8 +50,6 @@ header {
     color: #000000;
 }
 
-
-
 .user-icon i {
     font-size: 16px;
     color: #000000;
@@ -69,7 +69,7 @@ header {
     background-color: #d0d0d0;
 }
 
-/* MAIN LAYOUT */
+/* ----------- Основна сітка ----------- */
 .content {
     display: flex;
     flex: 1;
@@ -91,6 +91,7 @@ header {
     border-left: 1px solid #e0e0e0;
 }
 
+/* ----------- Головна панель ----------- */
 .main-panel {
     width: 50%;
     display: flex;
@@ -100,10 +101,11 @@ header {
     background-color: #ffffff;
 }
 
-/* EDITOR + OUTPUT */
+/* ----------- Редактор і Вивід ----------- */
 .command-editor {
     flex: 0 0 20%;
     margin-bottom: 10px;
+    font-size: 12px;
 }
 
 .command-output {
@@ -113,11 +115,11 @@ header {
     border: 1px solid #cccccc;
     overflow-y: auto;
     white-space: pre-wrap;
-    color: #000000; /* чорний текст */
+    color: #000000;
     font-family: Consolas, monospace;
 }
 
-/* FORM ELEMENTS */
+/* ----------- Форми ----------- */
 textarea,
 input,
 select,
@@ -138,7 +140,7 @@ input:focus {
     border-color: #007acc;
 }
 
-/* BUTTONS */
+/* ----------- Кнопки ----------- */
 button {
     background-color: #007acc;
     color: white;
@@ -152,7 +154,7 @@ button:hover {
     background-color: #005a9e;
 }
 
-/* LISTS */
+/* ----------- Списки ----------- */
 ul {
     list-style-type: none;
     padding-left: 0;
@@ -163,17 +165,19 @@ li {
     background: #f5f5f5;
     margin-bottom: 6px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
+    border-radius: 4px;
 }
 
+/* Виділення при наведенні */
 li:hover {
     background-color: #eaeaea;
 }
 
-/* HEADERS */
-h2 {
-    font-size: 15px;
-    margin-bottom: 10px;
-    color: #000000; /* чорний текст */
-    font-weight: 500;
+/* ----------- Спеціальне оформлення для вибраних серверів ----------- */
+#server-list li.selected {
+    background-color: #3498db;
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 4px;
 }

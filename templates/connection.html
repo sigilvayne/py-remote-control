@@ -51,42 +51,68 @@
     </div>
 
     <script>
-        document.querySelectorAll('#command-list li').forEach(item => {
-            item.addEventListener('click', () => {
-                document.getElementById('command-input').value = item.innerText;
+        let selectedServers = new Set();
+
+        function updateServerSelectionUI() {
+            document.querySelectorAll('#server-list li').forEach(li => {
+                const sid = li.dataset.sid;
+                if (selectedServers.has(sid)) {
+                    li.classList.add('selected');
+                } else {
+                    li.classList.remove('selected');
+                }
             });
-        });
+        }
 
         async function sendCommand() {
-            const serverId = document.getElementById('server-id').value.trim();
             const command = document.getElementById('command-input').value.trim();
 
-            if (!serverId || !command) {
-                alert("Введіть ім'я серверу та команду.");
+            if (selectedServers.size === 0 || !command) {
+                alert("Оберіть принаймні один сервер та введіть команду.");
                 return;
             }
 
-            await fetch(`/set_command/${serverId}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ command })
-            });
-
             const output = document.getElementById('command-output');
-            output.innerHTML = "<em>Очікуємо результат...</em>";
+            output.innerHTML = `<em>Надсилаємо команду на ${selectedServers.size} серверів...</em>`;
 
+            // Надсилання команди на кожен сервер
+            for (const sid of selectedServers) {
+                await fetch(`/set_command/${sid}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ command })
+                });
+            }
+
+            // Очікування результатів
             let tries = 30;
+            let results = {};
             while (tries-- > 0) {
-                const res = await fetch(`/get_result/${serverId}`);
-                const data = await res.json();
-                if (data.status !== "no_result") {
-                    output.textContent = data.output || JSON.stringify(data);
-                    return;
+                for (const sid of selectedServers) {
+                    if (results[sid]) continue;
+
+                    const res = await fetch(`/get_result/${sid}`);
+                    const data = await res.json();
+                    if (data.status !== "no_result") {
+                        results[sid] = data;
+                    }
                 }
+
+                if (Object.keys(results).length === selectedServers.size) break;
                 await new Promise(r => setTimeout(r, 1000));
             }
 
-            output.innerHTML = "<em>Результат не отримано.</em>";
+            let finalOutput = "";
+            for (const sid of selectedServers) {
+                const res = results[sid];
+                if (res) {
+                    finalOutput += `<strong>${sid}</strong><pre>${res.stdout || "No output"}</pre>`;
+                } else {
+                    finalOutput += `<strong>${sid}</strong>: <em>Немає результату</em><br>`;
+                }
+            }
+
+            output.innerHTML = finalOutput;
         }
 
         async function loadServers() {
@@ -97,14 +123,28 @@
             servers.forEach(server => {
                 const li = document.createElement('li');
                 li.textContent = server;
+                li.dataset.sid = server;
                 li.addEventListener('click', () => {
-                    document.getElementById('server-id').value = server;
+                    if (selectedServers.has(server)) {
+                        selectedServers.delete(server);
+                    } else {
+                        selectedServers.add(server);
+                    }
+                    updateServerSelectionUI();
                 });
                 list.appendChild(li);
             });
         }
 
+        // Команда з лівого списку
+        document.querySelectorAll('#command-list li').forEach(item => {
+            item.addEventListener('click', () => {
+                document.getElementById('command-input').value = item.innerText;
+            });
+        });
+
         loadServers();
     </script>
+
 </body>
 </html>
