@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY api.py .
 COPY templates/ ./templates/
 COPY static ./static
+COPY scripts ./scripts
 
 RUN mkdir -p /app/data
 

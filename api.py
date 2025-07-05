@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import threading
 import os
+from flask import send_from_directory
+
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app)
@@ -94,6 +96,13 @@ def set_command(server_id):
 def get_result(server_id):
     res = results.pop(server_id, None)
     return jsonify(res if res else {"status": "no_result"})
+
+# --- Завантаження скриптів ---
+
+@app.route('/scripts/<path:filename>')
+def serve_script(filename):
+    return send_from_directory('scripts', filename)
+
 
 # --- Агент API ---
 @app.route('/agent_get_command/<server_id>', methods=['GET'])
