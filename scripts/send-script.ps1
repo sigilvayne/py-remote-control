@@ -1,2 +1,2 @@
-Write-Output "PowerShell скрипт виконано!"
+Write-Output "Hello from PowerShell!"
 Get-Date

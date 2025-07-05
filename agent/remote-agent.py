@@ -42,9 +42,9 @@ while True:
                     elif ext in [".bat", ".cmd"]:
                         res = subprocess.run(local_path, shell=True, capture_output=True, text=True)
                     else:
-                        res = subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="Невідомий тип скрипта.")
+                        res = subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="Wrong script type.")
                 else:
-                    res = subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="Неправильний формат команди.")
+                    res = subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="Wrong command format.")
             else:
                 res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
