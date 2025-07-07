@@ -188,23 +188,25 @@ li:hover {
     border-radius: 0px;
     font-weight: bold;
 }
+
 .folder-label {
     font-weight: bold;
-    padding: 4px 0;
+    padding: 8px 8x;
     display: block;
-    background-color: #e0e0e0;
-    padding-left: 6px;
-    margin-top: 10px;
+    background-color: transparent;
+    margin-top: 12;
+    font-size: 14px;
+    cursor: pointer;
     text-transform: uppercase;
-    font-size: 11px;
-    border-left: 3px solid #007acc;
+    color: #0040a1;
+    user-select: none;
+    border: none;
+}
+
+.folder-label:hover {
+    background-color: transparent;
 }
 
 .nested-list.collapsed {
     display: none;
-}
-
-.folder-label.folder {
-    cursor: pointer;
-    user-select: none;
 }

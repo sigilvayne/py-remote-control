@@ -1,10 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
     const selectedServers = new Set();
 
-    // Обробка кліків по елементам списку команд
-    document.querySelectorAll('#command-list li li').forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.stopPropagation(); // щоб клік не йшов до батьків
+    // 1) Обробка кліків на папках — згортання/розгортання
+    document.querySelectorAll('.folder-label').forEach(label => {
+        label.style.cursor = 'pointer';
+        label.addEventListener('click', (e) => {
+            const nested = label.nextElementSibling;
+            if (nested) {
+                nested.classList.toggle('collapsed');
+            }
+            e.stopPropagation();
+        });
+    });
+
+    // 2) Обробка кліків саме по командах у вкладеному списку
+    document.querySelectorAll('#command-list .nested-list li').forEach(item => {
+        item.addEventListener('click', () => {
             const script = item.dataset.script;
             if (script) {
                 document.getElementById('command-input').value =
@@ -15,17 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    document.querySelectorAll('.folder').forEach(folder => {
-        folder.addEventListener('click', () => {
-            const nestedList = folder.nextElementSibling;
-            if (nestedList && nestedList.classList.contains('nested-list')) {
-                nestedList.classList.toggle('collapsed');
-            }
-        });
-    });
-
-
-    // Відправка команди
+    // 3) Відправка команди
     async function sendCommand() {
         const command = document.getElementById('command-input').value.trim();
         const sendBtn = document.getElementById('send-btn');
@@ -65,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sendBtn.textContent = "Надіслати";
     }
 
-    // Завантаження списку серверів
+    // 4) Завантаження списку серверів
     async function loadServers() {
         const res = await fetch('/servers');
         const servers = await res.json();
@@ -89,9 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Робимо sendCommand глобально доступною
     window.sendCommand = sendCommand;
-
-    // Завантажуємо сервери при старті
     loadServers();
 });
