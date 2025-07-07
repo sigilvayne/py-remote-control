@@ -2,8 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedServers = new Set();
 
     // Обробка кліків по елементам списку команд
-    document.querySelectorAll('#command-list li').forEach(item => {
-        item.addEventListener('click', () => {
+    document.querySelectorAll('#command-list li li').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation(); // щоб клік не йшов до батьків
             const script = item.dataset.script;
             if (script) {
                 document.getElementById('command-input').value =
@@ -13,6 +14,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    document.querySelectorAll('.folder').forEach(folder => {
+        folder.addEventListener('click', () => {
+            const nestedList = folder.nextElementSibling;
+            if (nestedList && nestedList.classList.contains('nested-list')) {
+                nestedList.classList.toggle('collapsed');
+            }
+        });
+    });
+
 
     // Відправка команди
     async function sendCommand() {

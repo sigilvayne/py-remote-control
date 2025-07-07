@@ -25,18 +25,30 @@
         <div class="left-panel">
             <h2>Команди</h2>
             <ul id="command-list">
-                <li>ipconfig</li>
-                <li>whoami</li>
-                <li>hostname</li>
-                <li>tasklist</li>
-                <li>netstat -an</li>
-                <li>shutdown /r /t 0</li>
-                <li>sc query</li>
-                <li>systeminfo</li>
-                <li data-script="send-script.ps1">send-script.ps1</li>
-                <li data-script="run-medoc.exe">open-medoc.PS1</li>
+                <li>
+                    <span class="folder-label folder">cmd</span>
+                    <ul class="nested-list">
+                        <li>ipconfig</li>
+                        <li>whoami</li>
+                        <li>hostname</li>
+                        <li>tasklist</li>
+                        <li>netstat -an</li>
+                        <li>shutdown /r /t 0</li>
+                        <li>sc query</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder">medoc</span>
+                    <ul class="nested-list">
+                        <li>systeminfo</li>
+                        <li data-script="send-script.ps1">send-script.ps1</li>
+                        <li data-script="run-medoc.exe">open-medoc.PS1</li>
+                    </ul>
+                </li>
             </ul>
         </div>
+
+
 
         <div class="right-panel">
             <h2>Сервери</h2>
