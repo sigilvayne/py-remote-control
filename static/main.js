@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (nested) {
                 nested.classList.toggle('collapsed');
             }
+            label.classList.toggle('open'); // Якщо колись треба буде підсвітити активну папку
             e.stopPropagation();
         });
     });
