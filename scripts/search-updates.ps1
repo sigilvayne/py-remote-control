@@ -1,29 +1,56 @@
-Import-Module PSWindowsUpdate -ErrorAction SilentlyContinue
+﻿# search-updates.ps1
 
-if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
-    Write-Host "Модуль PSWindowsUpdate не знайдено. Встановлення..."
-    Install-Module -Name PSWindowsUpdate -Force -Confirm:$false
-    Import-Module PSWindowsUpdate
+$logFolder = 'C:\Script\logs'
+$logFile   = "$logFolder\update.logs"
+
+if (-not (Test-Path $logFolder)) {
+    New-Item -ItemType Directory -Path $logFolder -Force | Out-Null
 }
 
-Write-Host "`n=== Перевірка оновлень антивіруса (Захисник Windows) ==="
+# Встановлюємо кодування Windows-1251
+$encoding = [System.Text.Encoding]::GetEncoding(1251)
+$writer = New-Object System.IO.StreamWriter($logFile, $true, $encoding)
+
+function Write-Log {
+    param([string]$text)
+    $writer.WriteLine($text)
+}
+
+Write-Log "==== Перевірка оновлень $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ===="
+
+# Антивірус
+Write-Log ''
+Write-Log '[Антивірус]'
 try {
-    Update-MpSignature -AsJob | Out-Null
+    Update-MpSignature | Out-Null
     Start-Sleep -Seconds 5
     $status = Get-MpComputerStatus
-    Write-Host "Версія антивірусної бази даних: $($status.AntispywareSignatureVersion)"
+    Write-Log "Версія бази: $($status.AntispywareSignatureVersion)"
 } catch {
-    Write-Warning "Не вдалося перевірити оновлення антивіруса: $_"
+    Write-Log "Помилка оновлення антивіруса: $_"
 }
 
-Write-Host "`n=== Перевірка оновлень Windows ==="
+# Windows Update
+Write-Log ''
+Write-Log '[Оновлення Windows]'
 try {
     $updates = Get-WindowsUpdate -MicrosoftUpdate -IgnoreUserInput -AcceptAll -WhatIf
-    if ($updates) {
-        $updates | Format-Table -Property Title, KB, Size, MsrcSeverity -AutoSize
+    if ($updates.Count -gt 0) {
+        foreach ($u in $updates) {
+            $title = $u.Title
+            $severity = $u.MsrcSeverity
+            $size = $u.Size
+            Write-Log "$title | Severity: $severity | Size: $size байт"
+        }
     } else {
-        Write-Host "Оновлень не знайдено."
+        Write-Log 'Оновлень не знайдено.'
     }
 } catch {
-    Write-Warning "Не вдалося отримати список оновлень: $_"
+    Write-Log "Помилка перевірки оновлень: $_"
 }
+
+Write-Log ''
+Write-Log ('-' * 60)
+Write-Log ''
+
+$writer.Close()

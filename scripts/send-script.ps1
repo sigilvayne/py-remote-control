@@ -1,2 +1,2 @@
-Write-Output "Hello from PowerShell!"
+﻿Write-Output "Hello from PowerShell!"
 Get-Date
