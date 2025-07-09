@@ -15,15 +15,16 @@
             <div class="header-title">CLI</div>
         </div>
         <div class="user-info">
-            <div class="user-icon"><i class="fi fi-tr-circle-user"></i></div>
+            <div class="flex-username"><img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon">
             <div class="username">{{ username }}</div>
+            </div>
             <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
         </div>
     </header>
 
     <main class="content">
         <div class="left-panel">
-            <h2>Команди</h2>
+            <h2 class="h2-margin">Команди</h2>
             <ul id="command-list">
                 <li>
                     <span class="folder-label folder">cmd</span>
@@ -57,16 +58,16 @@
 
 
         <div class="right-panel">
-            <h2>Сервери</h2>
+            <h2 class="h2-margin">Сервери</h2>
             <ul id="server-list"></ul>
             <input type="text" id="server-id" placeholder="Введіть ім'я серверу вручну...">
         </div>
 
         <div class="main-panel">
             <div class="command-editor">
-                <h2>Команда</h2>
+                <h2 class="h2-margin">Команда</h2>
                 <textarea id="command-input" rows="3" placeholder="Оберіть команду або введіть свою..."></textarea>
-                <div class="flex">
+                <div class="flex-buttons">
                 <button id="send-btn" onclick="sendCommand()" style="font-weight: bold;">Надіслати</button>
                 <button id="clear-btn" style="font-weight: bold;">Очистити</button>
                 </div>

@@ -1,8 +1,11 @@
 
+*{
+     margin: 0;
+    padding: 0;
+}
+
 /* ----------- Головне оформлення ----------- */
 body {
-    margin: 0;
-    padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #fff;
     color: #000;
@@ -47,12 +50,11 @@ body {
 /* ----------- Хедер ----------- */
 header {
     background-color: #f3f3f3;
-    padding: 4px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid #ccc;
-    height: 40px;
+    padding:.5rem 1rem ;
 }
 
 .header-left {
@@ -79,13 +81,15 @@ header {
 .user-info {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     color: #000;
 }
 
-.user-icon i {
-    font-size: 16px;
-    color: inherit;
+.user-icon{
+    display: block;
+    width:1.75rem;
+    height:1.75rem;
 }
 
 /* ----------- Заголовки в лівій і правій панелі ----------- */
@@ -110,8 +114,8 @@ header {
     color: #000;
 }
 
-.command-editor{
-    margin-bottom: 1rem;
+#command-input{
+    margin-top:1rem;
 }
 
 /* ----------- Форми ----------- */
@@ -126,13 +130,16 @@ button {
     border: 1px solid #ccc;
     background-color: #fff;
     color: #000;
-    margin-top: 6px;
 }
 
 textarea:focus,
 input:focus {
     outline: none;
     border-color: #007acc;
+}
+
+.h2-margin{
+    margin-top: 1rem;
 }
 
 /* ----------- Кнопки ----------- */
@@ -142,7 +149,6 @@ button {
     border: none;
     cursor: pointer;
     transition: background-color 0.2s;
-    margin-top: 8px;
 }
 
 button:hover {
@@ -158,7 +164,7 @@ button:disabled {
     background-color: #007acc;
     border: none;
     border-radius: 16px;
-    padding: .4rem 1.25rem;
+    padding: .4rem 1.5rem;
     font-size: 12px;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -231,9 +237,18 @@ ul.nested-list li:hover {
     display: none;
 }
 
-.flex{
+.flex-username{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap:.25rem;
+}
+
+.flex-buttons{
     display: flex;
     gap:1rem;
+    margin:.5rem 0 1rem 0;
+    
 }
 
 #send-btn{
