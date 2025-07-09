@@ -88,23 +88,6 @@ header {
     color: inherit;
 }
 
-.logout-btn {
-    background-color: #e0e0e0;
-    color: #000;
-    border: none;
-    padding: 4px 10px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.logout-btn:hover {
-    background-color: #d0d0d0;
-}
-
-
-
-
 /* ----------- Заголовки в лівій і правій панелі ----------- */
 .left-panel h3,
 .right-panel h3 {
@@ -169,6 +152,20 @@ button:hover {
 button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.logout-btn {
+    background-color: #007acc;
+    border: none;
+    border-radius: 16px;
+    padding: .4rem 1.25rem;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: #005a9e;
 }
 
 /* ----------- Списки ----------- */
