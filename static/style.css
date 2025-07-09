@@ -200,8 +200,9 @@ li {
     cursor: pointer;
 }
 
-li:hover {
-    background-color: #e2e2e2;
+ul.nested-list li:hover {
+  background-color: #e2e2e2;
+  cursor: pointer;
 }
 
 #server-list li.selected {
