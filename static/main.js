@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         for (const serverId of selectedServers) {
-            let tries = 30;
+            let tries = 10;
             while (tries-- > 0) {
                 const res = await fetch(`/get_result/${serverId}`);
                 const data = await res.json();
