@@ -1,3 +1,4 @@
+
 /* ----------- Головне оформлення ----------- */
 body {
     margin: 0;
@@ -5,10 +6,42 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #fff;
     color: #000;
+    font-size: 13px;
+}
+
+/*---------------- Main content ------------------------------*/
+
+.content {
+  display: grid;
+  grid-template-columns: 25% 25% 50%;
+  min-height: 100vh;
+  padding-inline:1rem;
+}
+
+.left-panel {
+    border-right: 1px solid #ddd;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    gap: 16px;
+    overflow-y: auto;
     font-size: 13px;
+    padding-right: 1rem;
+}
+
+.right-panel {
+    background-color: #fafafa;
+    border-left: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-inline:1rem;
+}
+
+.main-panel {
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding-left: 1rem;
 }
 
 /* ----------- Хедер ----------- */
@@ -69,39 +102,8 @@ header {
     background-color: #d0d0d0;
 }
 
-/* ----------- Основна сітка ----------- */
-.content {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    padding-right: 16px
-}
 
-.left-panel,
-.right-panel {
-    padding: 16px;
-}
 
-.left-panel {
-    width: 25%;
-    background-color: #f9f9f9;
-    border-right: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    overflow-y: auto;
-    font-size: 13px;
-}
-
-.right-panel {
-    width: 25%;
-    background-color: #fafafa;
-    border-left: 1px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-right: 16px;
-}
 
 /* ----------- Заголовки в лівій і правій панелі ----------- */
 .left-panel h3,
@@ -114,22 +116,6 @@ header {
     color: #0040a1;
 }
 
-/* ----------- Центральна панель ----------- */
-.main-panel {
-    width: 50%;
-    background-color: #fff;
-    display: flex;
-    flex-direction: column;
-    margin-left: 16px;
-}
-
-/* ----------- Редактор і Вивід ----------- */
-.command-editor {
-    flex: 0 0 20%;
-    margin-bottom: 10px;
-    font-size: 13px;
-}
-
 .command-output {
     flex: 1;
     padding: 10px;
@@ -139,6 +125,10 @@ header {
     white-space: pre-wrap;
     font-family: Consolas, monospace;
     color: #000;
+}
+
+.command-editor{
+    margin-bottom: 1rem;
 }
 
 /* ----------- Форми ----------- */
