@@ -242,3 +242,17 @@ li:hover {
 .nested-list.collapsed {
     display: none;
 }
+
+.flex{
+    display: flex;
+    gap:1rem;
+}
+
+#send-btn{
+    flex:4;
+
+}
+
+#clear-btn{
+    flex:2;
+}
