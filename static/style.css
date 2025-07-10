@@ -111,7 +111,10 @@ header {
     background: #fff;
     font-family: Consolas, monospace;
     color: #000;
-    min-height:10rem;
+    min-height: 10rem;
+    height: auto;      
+    overflow: hidden; /* --- ДОДАНО --- */
+    resize: none;     /* --- ДОДАНО --- */        
 }
 
 /* ----------- Форми ----------- */

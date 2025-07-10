@@ -1,108 +1,112 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const selectedServers = new Set();
+  const selectedServers = new Set();
 
-    // 1) Обробка кліків на папках — згортання/розгортання
-    document.querySelectorAll('.folder-label').forEach(label => {
-        label.style.cursor = 'pointer';
-        label.addEventListener('click', (e) => {
-            const nested = label.nextElementSibling;
-            if (nested) {
-                nested.classList.toggle('collapsed');
-            }
-            label.classList.toggle('open'); // Якщо колись треба буде підсвітити активну папку
-            e.stopPropagation();
-        });
+  // 1) Обробка кліків на папках — згортання/розгортання
+  document.querySelectorAll('.folder-label').forEach(label => {
+    label.style.cursor = 'pointer';
+    label.addEventListener('click', (e) => {
+      const nested = label.nextElementSibling;
+      if (nested) {
+        nested.classList.toggle('collapsed');
+      }
+      label.classList.toggle('open'); // Для підсвітки активної папки
+      e.stopPropagation();
     });
+  });
 
-    // 2) Обробка кліків саме по командах у вкладеному списку
-    document.querySelectorAll('#command-list .nested-list li').forEach(item => {
-        item.addEventListener('click', () => {
-            const script = item.dataset.script;
-            if (script) {
-                document.getElementById('command-input').value =
-                    `download_and_run_script ${script}`;
-            } else {
-                document.getElementById('command-input').value = item.innerText;
-            }
-        });
+  // 2) Обробка кліків по командах у списку
+  document.querySelectorAll('#command-list .nested-list li').forEach(item => {
+    item.addEventListener('click', () => {
+      const script = item.dataset.script;
+      const commandInput = document.getElementById('command-input');
+      if (script) {
+        commandInput.value = `download_and_run_script ${script}`;
+      } else {
+        commandInput.value = item.innerText;
+      }
     });
+  });
 
-    // 3) Відправка команди
-    async function sendCommand() {
-        const command = document.getElementById('command-input').value.trim();
-        const sendBtn = document.getElementById('send-btn');
+  // --- ДОДАНО: Функція автопідгонки висоти textarea ---
+  function autoResize(textarea) {
+    textarea.style.height = 'auto'; // скидаємо висоту
+    textarea.style.height = textarea.scrollHeight + 'px'; // встановлюємо висоту по контенту
+  }
 
-        if (selectedServers.size === 0 || !command) {
-            alert("Оберіть хоча б один сервер та введіть команду.");
-            return;
-        }
+  // 3) Відправка команди
+  async function sendCommand() {
+    const commandInput = document.getElementById('command-input');
+    const command = commandInput.value.trim();
+    const sendBtn = document.getElementById('send-btn');
+    const output = document.getElementById('command-output');
 
-        sendBtn.disabled = true;
-        sendBtn.textContent = "Надсилання...";
-
-        const output = document.getElementById('command-output');
-
-        for (const serverId of selectedServers) {
-            await fetch(`/set_command/${serverId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command })
-            });
-        }
-
-        for (const serverId of selectedServers) {
-            let tries = 10;
-            while (tries-- > 0) {
-                const res = await fetch(`/get_result/${serverId}`);
-                const data = await res.json();
-                if (data.status !== "no_result") {
-                    output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
-                    break;
-                }
-                await new Promise(r => setTimeout(r, 1000));
-            }
-        }
-
-        sendBtn.disabled = false;
-        sendBtn.textContent = "Надіслати";
+    if (selectedServers.size === 0 || !command) {
+      alert("Оберіть хоча б один сервер та введіть команду.");
+      return;
     }
 
-    // 4) Завантаження списку серверів
-    async function loadServers() {
-        const res = await fetch('/servers');
-        const servers = await res.json();
-        const list = document.getElementById('server-list');
-        list.innerHTML = '';
+    sendBtn.disabled = true;
+    sendBtn.textContent = "Надсилання...";
 
-        servers.forEach(server => {
-            const li = document.createElement('li');
-            li.textContent = server;
-
-            li.addEventListener('click', () => {
-                li.classList.toggle('selected');
-                if (selectedServers.has(server)) {
-                    selectedServers.delete(server);
-                } else {
-                    selectedServers.add(server);
-                }
-            });
-
-            list.appendChild(li);
-        });
+    for (const serverId of selectedServers) {
+      await fetch(`/set_command/${serverId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command })
+      });
     }
 
-    window.sendCommand = sendCommand;
-    loadServers();
-});
+    for (const serverId of selectedServers) {
+      let tries = 10;
+      while (tries-- > 0) {
+        const res = await fetch(`/get_result/${serverId}`);
+        const data = await res.json();
+        if (data.status !== "no_result") {
+          output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
+          autoResize(output); // --- ДОДАНО: автопідгонка після додавання тексту ---
+          break;
+        }
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
 
-//------------------------- Clear button -----------------------------//
+    sendBtn.disabled = false;
+    sendBtn.textContent = "Надіслати";
+  }
 
-document.addEventListener("DOMContentLoaded", function () {
-  const input = document.getElementById("command-output");
-  const button = document.getElementById("clear-btn");
+  // 4) Завантаження списку серверів
+  async function loadServers() {
+    const res = await fetch('/servers');
+    const servers = await res.json();
+    const list = document.getElementById('server-list');
+    list.innerHTML = '';
 
- button.addEventListener("click", function () {
-      input.value = "";
+    servers.forEach(server => {
+      const li = document.createElement('li');
+      li.textContent = server;
+
+      li.addEventListener('click', () => {
+        li.classList.toggle('selected');
+        if (selectedServers.has(server)) {
+          selectedServers.delete(server);
+        } else {
+          selectedServers.add(server);
+        }
+      });
+
+      list.appendChild(li);
     });
+  }
+
+  window.sendCommand = sendCommand;
+  loadServers();
+
+  // -----------------------Clear button------------------------//
+  
+  const output = document.getElementById("command-output");
+  const clearBtn = document.getElementById("clear-btn");
+  clearBtn.addEventListener("click", () => {
+    output.value = "";
+    autoResize(output); // --- ДОДАНО: автопідгонка після очищення textarea ---
+  });
 });
- 
