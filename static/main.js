@@ -106,14 +106,3 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
  
-//------------------------- auto resize textarea---------------------//
-function autoResizeOutput() {
-    const output = document.getElementById("command-output");
-    output.style.height = "auto";
-    output.style.height = output.scrollHeight + "px";
-}
-
-button.addEventListener("click", function () {
-    input.value = "";
-    input.style.height = "auto"; // reset height
-});
