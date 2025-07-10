@@ -20,8 +20,9 @@ body {
     background-color: #fff;
     color: #000;
     font-size: 13px;
-    margin-bottom:2rem;
     overflow-x: hidden;
+    padding-bottom: 1rem;
+    min-height: 100vh;
 }
 
 /*---------------- Main content ------------------------------*/
@@ -34,19 +35,21 @@ body {
   grid-template-columns: 25% 25% 50%;
 }
 
-.left-panel {
-    font-size: 13px;
+.left-panel{
+    height:100vh;
+    border-right:2px solid gainsboro;
 }
 
 .right-panel{
     padding-inline:1rem;
+    border-right:2px solid gainsboro;
+   
 }
 
-
-.main-panel {
-    background-color: #fff;
+.main-panel{
     display: flex;
     flex-direction: column;
+    padding-left:1rem;
 }
 
 /* ----------- Хедер ----------- */
@@ -106,15 +109,13 @@ header {
 }
 
 .command-output {
-    padding: 10px;
+    flex-grow: 1;
+    overflow-y: auto;   
     border: 1px solid #ccc;
-    background: #fff;
+    padding: 10px;
     font-family: Consolas, monospace;
-    color: #000;
-    min-height: 10rem;
-    height: auto;      
-    overflow: hidden; /* --- ДОДАНО --- */
-    resize: none;     /* --- ДОДАНО --- */        
+    resize: none;
+    min-height:10rem;
 }
 
 /* ----------- Форми ----------- */
@@ -263,13 +264,30 @@ ul.nested-list li:hover {
 }
 
 @media (max-width: 768px) {
-  .content{
-    grid-template-columns: 1fr;
-  }
+    .content{
+        grid-template-columns: 1fr;
+        height:auto;
+    }
 
-  .right-panel{
-    padding:0;
-}
+    .right-panel{
+        padding:0;
+    }
+
+    .main-panel{
+        padding: 0;
+    }
+    
+    .left-panel,
+    .right-panel,
+    .main-panel{
+        border: 0;
+        height: auto;
+    }
+
+    .body{
+        height: auto;
+    }
+
 }
 
 @media (max-width: 425px) {

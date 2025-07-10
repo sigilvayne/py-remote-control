@@ -27,12 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // --- ДОДАНО: Функція автопідгонки висоти textarea ---
-  function autoResize(textarea) {
-    textarea.style.height = 'auto'; // скидаємо висоту
-    textarea.style.height = textarea.scrollHeight + 'px'; // встановлюємо висоту по контенту
-  }
-
   // 3) Відправка команди
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
@@ -63,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         if (data.status !== "no_result") {
           output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
-          autoResize(output); // --- ДОДАНО: автопідгонка після додавання тексту ---
           break;
         }
         await new Promise(r => setTimeout(r, 1000));
@@ -102,11 +95,9 @@ document.addEventListener("DOMContentLoaded", () => {
   loadServers();
 
   // -----------------------Clear button------------------------//
-  
   const output = document.getElementById("command-output");
   const clearBtn = document.getElementById("clear-btn");
   clearBtn.addEventListener("click", () => {
     output.value = "";
-    autoResize(output); // --- ДОДАНО: автопідгонка після очищення textarea ---
   });
 });
