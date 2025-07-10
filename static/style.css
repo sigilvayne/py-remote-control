@@ -1,7 +1,17 @@
 
 *{
-     margin: 0;
+    margin: 0;
     padding: 0;
+    box-sizing: border-box;
+}
+
+h1,h2,h3,h4,h5{
+    margin: 0;
+    padding: 0;
+}
+
+.h2-margin{
+    padding-block:1rem;
 }
 
 /* ----------- Головне оформлення ----------- */
@@ -10,41 +20,33 @@ body {
     background-color: #fff;
     color: #000;
     font-size: 13px;
+    margin-bottom:2rem;
+    overflow-x: hidden;
 }
 
 /*---------------- Main content ------------------------------*/
 
 .content {
+  max-width: 100%;
+  padding-inline: 1rem;
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: 25% 25% 50%;
-  min-height: 100vh;
-  padding-inline:1rem;
 }
 
 .left-panel {
-    border-right: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    overflow-y: auto;
     font-size: 13px;
-    padding-right: 1rem;
 }
 
-.right-panel {
-    background-color: #fafafa;
-    border-left: 1px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.right-panel{
     padding-inline:1rem;
 }
+
 
 .main-panel {
     background-color: #fff;
     display: flex;
     flex-direction: column;
-    padding-left: 1rem;
 }
 
 /* ----------- Хедер ----------- */
@@ -88,8 +90,8 @@ header {
 
 .user-icon{
     display: block;
-    width:1.75rem;
-    height:1.75rem;
+    width:1.5rem;
+    height:1.5rem;
 }
 
 /* ----------- Заголовки в лівій і правій панелі ----------- */
@@ -104,18 +106,12 @@ header {
 }
 
 .command-output {
-    flex: 1;
     padding: 10px;
     border: 1px solid #ccc;
     background: #fff;
-    overflow-y: auto;
-    white-space: pre-wrap;
     font-family: Consolas, monospace;
     color: #000;
-}
-
-#command-input{
-    margin-top:1rem;
+    min-height:10rem;
 }
 
 /* ----------- Форми ----------- */
@@ -124,12 +120,11 @@ input,
 select,
 button {
     width: 100%;
-    padding: 6px;
-    box-sizing: border-box;
     font-size: 13px;
     border: 1px solid #ccc;
     background-color: #fff;
     color: #000;
+    resize: none;
 }
 
 textarea:focus,
@@ -138,9 +133,10 @@ input:focus {
     border-color: #007acc;
 }
 
-.h2-margin{
-    margin-top: 1rem;
+.server-input,.command-input{
+    padding:.5rem;
 }
+
 
 /* ----------- Кнопки ----------- */
 button {
@@ -172,6 +168,10 @@ button:disabled {
 
 .logout-btn:hover {
     background-color: #005a9e;
+}
+
+#send-btn, #clear-btn{
+    padding: .4rem 0 .4rem 0;
 }
 
 /* ----------- Списки ----------- */
@@ -258,4 +258,20 @@ ul.nested-list li:hover {
 
 #clear-btn{
     flex:2;
+}
+
+@media (max-width: 768px) {
+  .content{
+    grid-template-columns: 1fr;
+  }
+
+  .right-panel{
+    padding:0;
+}
+}
+
+@media (max-width: 425px) {
+ .logout-btn {
+    padding: .4rem 1rem;
+}
 }

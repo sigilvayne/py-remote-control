@@ -98,10 +98,10 @@ document.addEventListener("DOMContentLoaded", () => {
 //------------------------- Clear button -----------------------------//
 
 document.addEventListener("DOMContentLoaded", function () {
-    const input = document.getElementById("command-output");
-    const button = document.getElementById("clear-btn");
+  const input = document.getElementById("command-output");
+  const button = document.getElementById("clear-btn");
 
-    button.addEventListener("click", function () {
-      input.textContent = "";
-    });
+  button.addEventListener("click", function () {
+    input.value = "";  // для textarea очищаємо value
   });
+});
