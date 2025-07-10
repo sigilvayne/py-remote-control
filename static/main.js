@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const res = await fetch(`/get_result/${serverId}`);
                 const data = await res.json();
                 if (data.status !== "no_result") {
-                    output.value += `\n[${serverId}]\n${data.stdout || JSON.stringify(data)}\n--------------------------\n`; autoResizeOutput();
+                    output.innerHTML += `<div><strong>${serverId}:</strong><br><pre>${data.stdout || JSON.stringify(data)}</pre></div><hr>`;
                     break;
                 }
                 await new Promise(r => setTimeout(r, 1000));
