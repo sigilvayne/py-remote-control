@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const res = await fetch(`/get_result/${serverId}`);
                 const data = await res.json();
                 if (data.status !== "no_result") {
-                    output.innerHTML += `<div><strong>${serverId}:</strong><br><pre>${data.stdout || JSON.stringify(data)}</pre></div><hr>`;
+                    output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
                     break;
                 }
                 await new Promise(r => setTimeout(r, 1000));
@@ -101,8 +101,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const input = document.getElementById("command-output");
   const button = document.getElementById("clear-btn");
 
-  button.addEventListener("click", function () {
-    input.value = "";  // для textarea очищаємо value
-  });
+ button.addEventListener("click", function () {
+      input.value = "";
+    });
 });
  
