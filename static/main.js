@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const res = await fetch(`/get_result/${serverId}`);
                 const data = await res.json();
                 if (data.status !== "no_result") {
-                    output.innerHTML += `<div><strong>${serverId}:</strong><br><pre>${data.stdout || JSON.stringify(data)}</pre></div><hr>`;
+                    output.value += `\n[${serverId}]\n${data.stdout || JSON.stringify(data)}\n--------------------------\n`; autoResizeOutput();
                     break;
                 }
                 await new Promise(r => setTimeout(r, 1000));
@@ -104,4 +104,16 @@ document.addEventListener("DOMContentLoaded", function () {
   button.addEventListener("click", function () {
     input.value = "";  // для textarea очищаємо value
   });
+});
+ 
+//------------------------- auto resize textarea---------------------//
+function autoResizeOutput() {
+    const output = document.getElementById("command-output");
+    output.style.height = "auto";
+    output.style.height = output.scrollHeight + "px";
+}
+
+button.addEventListener("click", function () {
+    input.value = "";
+    input.style.height = "auto"; // reset height
 });
