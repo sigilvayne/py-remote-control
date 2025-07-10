@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <title>Вхід у систему</title>
     <style>
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background: #f5f5f5;
@@ -12,23 +19,27 @@
             align-items: center;
             height: 100vh;
         }
+
         .login-box {
             background: white;
-            padding: 30px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 300px;
+            max-width: 25rem;
+            width: 100%;
+            padding:3rem 2rem;
         }
+
         h2 {
             margin-bottom: 20px;
             text-align: center;
         }
+
         input {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
             font-size: 16px;
+            padding:.75rem 0 .75rem .75rem;
         }
+
         button {
             width: 100%;
             padding: 10px;
@@ -39,27 +50,130 @@
             cursor: pointer;
             border-radius: 4px;
         }
+
         button:hover {
             background: #005a9e;
         }
+
         .error {
             color: red;
             margin-bottom: 10px;
             text-align: center;
         }
+
+        .form{
+            display: flex;
+            flex-direction: column;
+            row-gap: 1rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width:100%; /* or 100%, adjust as needed */
+        }
+
+        .input-wrapper .icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        pointer-events: none;
+        user-select: none;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        }
+
+        .icon-user {
+        background-image: url('/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg');
+        }
+
+        .icon-password {
+        background-image: url('/static/images/lock_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg');
+        }
+
+        .input-icon-one,
+        .input-icon-two {
+        width: 100%;
+        padding-left: 40px; /* space for icon */
+        box-sizing: border-box;
+        font-size: 16px;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        }
+
+        input{
+            border: 1px solid gainsboro;
+        }
+
+        input:focus {
+            border-color: #0078d7; /* highlight border on focus */
+            outline: none;
+        }
+
+        .clear-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            background: url('/static/images/close_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg') no-repeat center;
+            background-size: contain;
+            cursor: pointer;
+            user-select: none;
+            display: none; /* hidden by default */
+        }
+
+/* Show clear icon only when input has text */
+        .input-wrapper input:not(:placeholder-shown) + .clear-icon {
+        display: block;
+    }
     </style>
 </head>
+
 <body>
     <div class="login-box">
         <h2>Вхід у систему</h2>
         {% if error %}
             <div class="error">{{ error }}</div>
         {% endif %}
-        <form method="POST" action="{{ url_for('login') }}">
-            <input type="text" name="username" placeholder="Ім'я користувача" required />
-            <input type="password" name="password" placeholder="Пароль" required />
-            <button type="submit">Увійти</button>
+        <form method="POST" action="{{ url_for('login') }}" class="form">
+            <div class="input-wrapper">
+                <span class="icon icon-user"></span>
+                    <input type="text" name="username" placeholder="Ім'я користувача" class="input-icon-one" required />
+                    <span class="clear-icon" onclick="this.previousElementSibling.value = '';"></span>
+                </div>
+
+                <div class="input-wrapper">
+                    <span class="icon icon-password"></span>
+                    <input type="password" name="password" placeholder="Пароль" class="input-icon-two" required />
+                    <span class="clear-icon" onclick="this.previousElementSibling.value = '';"></span>
+                </div>
+                 <button type="submit">Увійти</button>
         </form>
     </div>
+
+    <script>
+        document.querySelectorAll('.input-wrapper input').forEach(input => {
+        const clearIcon = input.nextElementSibling;
+
+        input.addEventListener('input', () => {
+            if (input.value.length > 0) {
+            clearIcon.style.display = 'block';
+            } else {
+            clearIcon.style.display = 'none';
+            }
+        });
+
+        clearIcon.addEventListener('click', () => {
+            input.value = '';
+            clearIcon.style.display = 'none';
+            input.focus();
+        });
+        });
+    </script>
 </body>
 </html>
