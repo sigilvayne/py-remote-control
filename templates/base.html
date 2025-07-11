@@ -5,28 +5,18 @@
     <title>Зареєстровані сервери</title>
     <link rel="stylesheet" href="/static/style.css" />
 </head>
-<body>
-    <h1>Список серверів</h1>
-    <table border="1" cellpadding="10">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Server ID</th>
-                <th>Control URL</th>
-                <th>Дата реєстрації</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in servers %}
-            <tr>
-                <td>{{ s.id }}</td>
-                <td>{{ s.server_id }}</td>
-                <td>{{ s.control_url }}</td>
-                <td>{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<body class="server-body">
+    <main class="server-container">
+    <h1 class="server-h1">Список серверів</h1>
+    <div class="server-grid">
+        <div class="server-card">
+        <div class="server-card-div"><span class="card-label">ID</span> <span class="card-value">{{ s.id }}</span></div>
+        <div class="server-card-div"><span class="card-label">Server ID</span> <span class="card-value">{{ s.server_id }}</span></div>
+        <div class="server-card-div"><span class="card-label">Control URL</span> <span class="card-value">{{ s.control_url }}</span></div>
+        <div class="server-card-div"><span class="card-label">Дата реєстрації</span> <span class="card-value">{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span></div>
+        </div>
+  </div>
     <p><a href="/">← Назад</a></p>
+    </main>
 </body>
 </html>
