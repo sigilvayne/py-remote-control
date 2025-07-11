@@ -177,7 +177,7 @@ button:disabled {
 }
 
 #send-btn, #clear-btn{
-    padding: .4rem 0 .4rem 0;
+    padding: .25rem 0;
 }
 
 /* ----------- Списки ----------- */
@@ -212,7 +212,9 @@ ul.nested-list li:hover {
 
 /* ----------- Папки (без стрілок) ----------- */
 .folder-label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap:.5rem;
     padding: 6px 8px;
     font-weight: bold;
     font-size: 13px;
@@ -254,7 +256,6 @@ ul.nested-list li:hover {
     display: flex;
     gap:1rem;
     margin:.5rem 0 1rem 0;
-    
 }
 
 #send-btn{
@@ -263,6 +264,41 @@ ul.nested-list li:hover {
 
 #clear-btn{
     flex:2;
+}
+
+#cycle-btn{
+    flex:2;
+}
+
+.icon{
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+}
+
+.cycle-icon{
+    background:url(/static/images/cycle_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
+}
+
+.clear-icon{
+    background:url(/static/images/delete_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
+}
+
+.cmd-icon{
+    background:url(/static/images/terminal_24dp_007ACC_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
+}
+
+.update-icon{
+    background:url(/static/images/update_24dp_007ACC_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
+}
+
+.hive-icon{
+    background:url(/static/images/hive_24dp_007ACC_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
+}
+
+.test-icon{
+    background:url(/static/images/build_24dp_007ACC_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
 }
 
 @media (max-width: 768px) {

@@ -28,7 +28,7 @@
             <h2 class="h2-margin">Команди</h2>
             <ul id="command-list">
                 <li>
-                    <span class="folder-label folder">Стандартні</span>
+                    <span class="folder-label folder"><span class="icon cmd-icon"></span>Стандартні</span>
                     <ul class="nested-list">
                         <li>ipconfig</li>
                         <li>whoami</li>
@@ -41,21 +41,21 @@
                     </ul>
                 </li>
                 <li>
-                    <span class="folder-label folder">Medoc</span>
+                    <span class="folder-label folder"><span class="icon hive-icon"></span>Medoс</span>
                     <ul class="nested-list">
                         <li data-script="run-medoc.exe">Запустити оновлення</li>
                         <li data-script="read-medoc-log.ps1">Перевірити версію</li>
                     </ul>
                 </li>
                 <li>
-                    <span class="folder-label folder">Оновлення</span>
+                    <span class="folder-label folder"><span class="icon update-icon"></span>Оновлення</span>
                     <ul class="nested-list">
                         <li data-script="search-updates.ps1">Пошук оновлень</li>
                         <li data-script="tail-logs.ps1">Прочитати логи оновлення</li>
                     </ul>
                 </li>
                 <li>
-                    <span class="folder-label folder">Тестування</span>
+                    <span class="folder-label folder"><span class="icon test-icon"></span>Тестування</span>
                     <ul class="nested-list">
                         <li data-script="send-script.ps1">send-script.ps1</li>
                     </ul>
@@ -77,7 +77,8 @@
                 <textarea id="command-input" rows="3" placeholder="Оберіть команду або введіть свою..." class="command-input"></textarea>
                 <div class="flex-buttons">
                 <button id="send-btn" onclick="sendCommand()" style="font-weight: bold;">Надіслати</button>
-                <button id="clear-btn" style="font-weight: bold;">Очистити</button>
+                <button id="clear-btn"><span class="icon clear-icon"></span></button>
+                <button id="cycle-btn"><span class="icon cycle-icon"></span></button>
                 </div>
             </div>
                 <textarea class="command-output" id="command-output" placeholder="Результати команд з’являться тут..." readonly></textarea>
