@@ -1,6 +1,4 @@
 ﻿# tail-logs.ps1
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
 
 $logFile = 'C:\Script\logs\update.txt'
 

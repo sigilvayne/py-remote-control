@@ -4,6 +4,7 @@ import subprocess
 import json
 import os
 
+# Завантаження конфігурації
 cfg = json.load(open("C:/Script/agent/config.json"))
 sid = cfg["server_id"]
 url = cfg["control_center_url"]
@@ -30,27 +31,34 @@ while True:
                     with open(local_path, "wb") as f:
                         f.write(script_res.content)
 
-                    # Визначаємо розширення (ps1, bat, cmd...)
+                    # Визначаємо розширення
                     ext = os.path.splitext(script_name)[1].lower()
 
                     if ext == ".ps1":
+                        # Виклик PowerShell з примусовим кодуванням UTF-8
                         res = subprocess.run([
                             "powershell",
                             "-ExecutionPolicy", "Bypass",
-                            "-File", local_path
-                        ], capture_output=True, text=True)
+                            "-Command",
+                            f"$OutputEncoding = [Console]::OutputEncoding = [Text.Encoding]::UTF8; & '{local_path}'"
+                        ], capture_output=True, text=True, encoding='utf-8')
+
                     elif ext in [".bat", ".cmd"]:
-                        res = subprocess.run(local_path, shell=True, capture_output=True, text=True)
+                        res = subprocess.run(local_path, shell=True, capture_output=True, text=True, encoding='utf-8')
+
                     elif ext == ".exe":
-                        res = subprocess.run(local_path, shell=True, capture_output=True, text=True)
+                        res = subprocess.run(local_path, shell=True, capture_output=True, text=True, encoding='utf-8')
+
                     else:
                         res = subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="Wrong script type.")
-
                 else:
                     res = subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="Wrong command format.")
-            else:
-                res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
+            else:
+                # Якщо це не завантаження скрипта, виконуємо напряму
+                res = subprocess.run(cmd, shell=True, capture_output=True, text=True, encoding='utf-8')
+
+            # Надсилання результату на сервер
             requests.post(f"{url}/agent_post_result/{sid}", json={
                 "stdout": res.stdout,
                 "stderr": res.stderr,
@@ -58,6 +66,8 @@ while True:
             })
 
     except Exception as e:
-        pass
+        # Для відлагодження можна записати у файл:
+        with open("agent_error.log", "a", encoding="utf-8") as f:
+            f.write(f"Error: {str(e)}\n")
 
-    time.sleep(5)
+    time.sleep(3)
