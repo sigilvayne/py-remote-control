@@ -1,6 +1,8 @@
 ﻿# tail-logs.ps1
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$logFile = 'C:\Script\logs\update.logs'
+
+$logFile = 'C:\Script\logs\update.txt'
 
 if (-not (Test-Path $logFile)) {
     Write-Host "Файл логу не знайдено: $logFile" -ForegroundColor Red
