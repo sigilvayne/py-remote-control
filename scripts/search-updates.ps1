@@ -1,7 +1,5 @@
-﻿# search-updates.ps1
-
-$logFolder = 'C:\Script\logs'
-$logFile   = "$logFolder\update.logs"
+﻿$logFolder = 'C:\Script\logs'
+$logFile   = "$logFolder\update.txt"
 
 if (-not (Test-Path $logFolder)) {
     New-Item -ItemType Directory -Path $logFolder -Force | Out-Null
