@@ -151,6 +151,7 @@ button {
     border: none;
     cursor: pointer;
     transition: background-color 0.2s;
+    height: 2rem;
 }
 
 button:hover {
@@ -163,6 +164,7 @@ button:disabled {
 }
 
 .logout-btn {
+    height: auto;
     background-color: #007acc;
     border: none;
     border-radius: 16px;
@@ -182,10 +184,9 @@ button:disabled {
 
 .select-btn {
   margin:0.5rem 0;
-  padding:.4rem;
+  padding:.5rem;
   background-color: #007acc;
-  border: none;
-  cursor: pointer;
+  font-weight: bold;
 }
 
 /* ----------- Списки ----------- */
@@ -219,7 +220,7 @@ ul.nested-list li:hover {
 }
 
 #server-list li {
-  margin-bottom: .5rem; /* increase space between list items */
+  margin-bottom: .4rem; /* increase space between list items */
 }
 
 /* ----------- Папки (без стрілок) ----------- */
