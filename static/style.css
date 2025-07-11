@@ -218,6 +218,10 @@ ul.nested-list li:hover {
     font-weight: bold;
 }
 
+#server-list li {
+  margin-bottom: .5rem; /* increase space between list items */
+}
+
 /* ----------- Папки (без стрілок) ----------- */
 .folder-label {
     display: flex;
@@ -262,7 +266,7 @@ ul.nested-list li:hover {
 
 .flex-buttons{
     display: flex;
-    gap:1rem;
+    gap:.5rem;
     margin:.5rem 0 1rem 0;
 }
 
