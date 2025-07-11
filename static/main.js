@@ -94,6 +94,36 @@ document.addEventListener("DOMContentLoaded", () => {
   window.sendCommand = sendCommand;
   loadServers();
 
+  //----------------Select/Deselect all toggle button------------------------//
+
+  // Select/Deselect all toggle button logic
+  const toggleSelectBtn = document.getElementById('toggle-select-all');
+  toggleSelectBtn.addEventListener('click', () => {
+    const listItems = document.querySelectorAll('#server-list li');
+    const selectAll = toggleSelectBtn.textContent === "Вибрати всі";
+
+    listItems.forEach(li => {
+      const server = li.textContent;
+
+      if (selectAll && !selectedServers.has(server)) {
+        li.classList.add('selected');
+        selectedServers.add(server);
+      } else if (!selectAll && selectedServers.has(server)) {
+        li.classList.remove('selected');
+        selectedServers.delete(server);
+      }
+    });
+
+    toggleSelectBtn.textContent = selectAll ? "Скасувати вибір" : "Вибрати всі";
+  });
+
+  // Optional: update toggle button text depending on selection state
+  function updateToggleSelectButton() {
+    const listItems = document.querySelectorAll('#server-list li');
+    const allSelected = [...listItems].every(li => li.classList.contains('selected'));
+    toggleSelectBtn.textContent = allSelected ? "Скасувати вибір" : "Вибрати всі";
+  }
+
   // -----------------------Clear button------------------------//
   const output = document.getElementById("command-output");
   const clearBtn = document.getElementById("clear-btn");
