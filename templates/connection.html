@@ -31,13 +31,10 @@
                     <span class="folder-label folder"><span class="icon cmd-icon"></span>Стандартні</span>
                     <ul class="nested-list">
                         <li>ipconfig</li>
-                        <li>whoami</li>
                         <li>hostname</li>
-                        <li>tasklist</li>
-                        <li>netstat -an</li>
                         <li>shutdown /r /t 0</li>
-                        <li>sc query</li>
-                        <li>systeminfo</li>
+                        <li data-script="sys-info.ps1">Інформація про систему</li>
+                        <li data-script="process-list.ps1">Список процесів</li>
                     </ul>
                 </li>
                 <li>
@@ -52,12 +49,19 @@
                     <ul class="nested-list">
                         <li data-script="search-updates.ps1">Пошук оновлень</li>
                         <li data-script="tail-logs.ps1">Прочитати логи оновлення</li>
+                        <li data-script="run-update.ps1">Інсталювати оновлення</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon test-icon"></span>Тестування</span>
                     <ul class="nested-list">
                         <li data-script="send-script.ps1">send-script.ps1</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder"><span class="icon test-icon"></span>Користувачі</span>
+                    <ul class="nested-list">
+                        <li data-script="rdp-fail.ps1">Невдалі входи по RDP</li>
                     </ul>
                 </li>
             </ul>
