@@ -97,6 +97,16 @@ def get_result(server_id):
     res = results.pop(server_id, None)
     return jsonify(res if res else {"status": "no_result"})
 
+@app.route('/get_medoc_version', methods=['GET'])
+def get_medoc_version():
+    try:
+        with open('scripts/variables/medoc-ver.txt', 'r', encoding='utf-8') as f:
+            version = f.read().strip()
+        return jsonify({"version": version})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # --- Завантаження скриптів ---
 
 @app.route('/scripts/<path:filename>')
