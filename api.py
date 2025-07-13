@@ -6,6 +6,8 @@ from datetime import datetime
 import threading
 import os
 from flask import send_from_directory
+import uuid
+
 
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -39,8 +41,9 @@ with app.app_context():
 
 # --- Дані ---
 users = {'marusiak': 'admin123'}
-commands = {}
-results = {}
+
+commands = {}  # server_id -> {"id": ..., "command": ...}
+results = {}   # server_id -> {"id": ..., "stdout": ..., ...}
 
 # --- Авторизація ---
 def login_required(f):
@@ -88,14 +91,25 @@ def list_servers():
 @login_required
 def set_command(server_id):
     payload = request.json or {}
-    commands[server_id] = payload
-    return jsonify({"status": "command_set"})
+    command = payload.get("command", "")
+    command_id = str(uuid.uuid4())
+
+    commands[server_id] = {
+        "id": command_id,
+        "command": command
+    }
+    return jsonify({"status": "command_set", "command_id": command_id})
 
 @app.route('/get_result/<server_id>', methods=['GET'])
 @login_required
 def get_result(server_id):
-    res = results.pop(server_id, None)
-    return jsonify(res if res else {"status": "no_result"})
+    expected_id = request.args.get("command_id")
+    res = results.get(server_id)
+    if res and res.get("id") == expected_id:
+        results.pop(server_id)
+        return jsonify(res)
+    else:
+        return jsonify({"status": "no_result"})
 
 @app.route('/get_medoc_version', methods=['GET'])
 def get_medoc_version():
@@ -122,7 +136,9 @@ def agent_get_command(server_id):
 
 @app.route('/agent_post_result/<server_id>', methods=['POST'])
 def agent_post_result(server_id):
-    results[server_id] = request.json
+    result = request.json or {}
+    # result має містити "id", "stdout", "stderr" тощо
+    results[server_id] = result
     return jsonify({"status": "result_received"})
 
 # --- Реєстрація серверів  ---

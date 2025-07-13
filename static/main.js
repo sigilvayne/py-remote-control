@@ -59,18 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
     sendBtn.textContent = "Надсилання...";
 
     for (const serverId of selectedServers) {
-      await fetch(`/set_command/${serverId}`, {
+      // Відправляємо команду і отримуємо command_id
+      const res = await fetch(`/set_command/${serverId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ command })
       });
-    }
+      const { command_id } = await res.json();
 
-    for (const serverId of selectedServers) {
+      // Чекаємо результат з конкретним command_id
       let tries = 10;
       while (tries-- > 0) {
-        const res = await fetch(`/get_result/${serverId}`);
-        const data = await res.json();
+        const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
+        const data = await resultRes.json();
         if (data.status !== "no_result") {
           output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
           break;
@@ -82,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     sendBtn.disabled = false;
     sendBtn.textContent = "Надіслати";
   }
+
 
   // 4) Завантаження списку серверів
   async function loadServers() {
