@@ -152,20 +152,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 //-----------------------Checking active class---------------------------//
 
-document.addEventListener("DOMContentLoaded", () => {
-  const currentPath = window.location.pathname; 
-  const navItems = document.querySelectorAll('.main-nav .nav-item');
+ document.addEventListener("DOMContentLoaded", () => {
+  const currentPath = window.location.pathname.replace(/\/$/, "");
 
-  navItems.forEach(item => {
+  document.querySelectorAll('.main-nav .nav-item').forEach(item => {
     const link = item.querySelector('a');
     if (!link) return;
 
-    const linkHref = link.getAttribute('href');
-
-    if (linkHref === currentPath) {
+    const href = link.getAttribute('href').replace(/\/$/, "");
+    if (href === currentPath) {
       item.classList.add('active');
-
-      link.addEventListener('click', e => e.preventDefault());
     } else {
       item.classList.remove('active');
     }

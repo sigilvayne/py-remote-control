@@ -21,15 +21,15 @@
 
         <nav class="main-nav underline-indicators">
             <ul class="nav-list">
-                <li class="nav-item"><a href="/templates/connection.html">Керування</a></li>
-                <li class="nav-item"><a href="/templates/base.html">База серверів</a></li>
-                <li class="nav-item"><a href="#">Моніторинг</a></li>
+                <li class="nav-item"><a href="{{ url_for('index') }}">Керування</a></li>
+                <li class="nav-item"><a href="{{ url_for('base') }}">База серверів</a></li>
+                <li class="nav-item"><a href="/">Моніторинг</a></li>
             </ul>
 
         <div class="user-info-mobile">
             <div class="flex-username">
             <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
-            <div class="username">{{ username }}</div>
+            <span class="username">{{ username }}</span>
             </div>
             <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
         </div>
@@ -107,7 +107,7 @@
                     </ul>
                 </li>
                 <li>
-                    <span class="folder-label folder"><span class="icon test-icon"></span>RDP Guard</span>
+                    <span class="folder-label folder"><span class="icon guard-icon"></span>RDP Guard</span>
                     <ul class="nested-list">
                         <li data-script="rdpguard-unlock.ps1">Розблокувати усі IP</li>
                         <li data-script="rdpguard-check-license.ps1">Перевірити ліцензію</li>

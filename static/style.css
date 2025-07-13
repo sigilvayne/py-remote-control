@@ -36,8 +36,11 @@ body {
 }
 
 .left-panel{
-    height: 100%; 
+    max-height:100vh; 
     border-right:2px solid gainsboro;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+
 }
 
 .right-panel{
@@ -108,35 +111,55 @@ header {
 }
 
 .underline-indicators a {
+  position: relative;
   display: inline-block;
   padding: 1.25rem 0;
   color: #000;
   text-decoration: none;
-  border-bottom: 2px solid transparent;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  transition: color 0.3s ease;
 }
 
-
+.underline-indicators a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background-color: #007acc;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
 
 .underline-indicators .active > a,
 .underline-indicators a.active {
-  border-bottom-color: #007acc; /* strong active */
   font-weight: 600;
-  font-size:1rem;
+  font-size: 1rem;
   color: #007acc;
+}
+
+.underline-indicators a.active::after,
+.underline-indicators .active > a::after {
+  transform: scaleX(1);
 }
 
 .nav-list{
     display: flex;
     align-items: center;
+    gap: 2rem;
 }
 
 .nav-item{
     background-color: transparent;
 }
 
-.nav-item a{
-    text-decoration: none;
+.nav-item a {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  text-decoration: none
+  ;
 }
 
 .menu-toggle{
@@ -379,8 +402,8 @@ ul.nested-list li:hover {
 .flex-username{
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap:.25rem;
+    gap:.5rem;
+    width: 100%;
 }
 
 .flex-buttons{
@@ -442,6 +465,10 @@ ul.nested-list li:hover {
 
 .logout-icon{
     background:url(/static/images/logout_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
+}
+
+.guard-icon{
+    background:url(/static/images/security_24dp_007ACC_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
 }
 
 /*-------------------------------Base page css styling----------------------------*/
