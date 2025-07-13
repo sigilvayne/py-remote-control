@@ -20,8 +20,8 @@
 
         <nav class="main-nav underline-indicators">
             <ul class="nav-list">
-                <li class="nav-item"><a href="/templates/connection.html">Керування</a></li>
-                <li class="nav-item"><a href="/templates/base.html">База серверів</a></li>
+                <li class="nav-item"><a href="{{ url_for('index') }}">Керування</a></li>
+                <li class="nav-item"><a href="{{ url_for('base') }}">База серверів</a></li>
                 <li class="nav-item"><a href="#">Моніторинг</a></li>
             </ul>
 
@@ -62,20 +62,15 @@
     <script>
 
 document.addEventListener("DOMContentLoaded", () => {
-  const currentPath = window.location.pathname; // full path, e.g. "/templates/base.html"
-  const navItems = document.querySelectorAll('.main-nav .nav-item');
+  const currentPath = window.location.pathname.replace(/\/$/, "");
 
-  navItems.forEach(item => {
+  document.querySelectorAll('.main-nav .nav-item').forEach(item => {
     const link = item.querySelector('a');
     if (!link) return;
 
-    const linkHref = link.getAttribute('href');
-
-    if (linkHref === currentPath) {
+    const href = link.getAttribute('href').replace(/\/$/, "");
+    if (href === currentPath) {
       item.classList.add('active');
-
-      // Disable clicking on active link
-      link.addEventListener('click', e => e.preventDefault());
     } else {
       item.classList.remove('active');
     }

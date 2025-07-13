@@ -98,7 +98,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap:1.5rem;
     color: #000;
 }
 
@@ -469,6 +469,10 @@ ul.nested-list li:hover {
 
 .guard-icon{
     background:url(/static/images/security_24dp_007ACC_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
+}
+
+.handy-icon{
+    background:url(/static/images/handyman_24dp_007ACC_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
 }
 
 /*-------------------------------Base page css styling----------------------------*/
