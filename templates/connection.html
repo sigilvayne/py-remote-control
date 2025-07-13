@@ -10,17 +10,39 @@
 </head>
 <body>
 
-    <header>
+    <header class="headers">
+
         <div class="header-left">
             <img src="/static/images/icon.png" alt="Лого" class="header-icon">
             <div class="header-title">CLI</div>
         </div>
-        <div class="user-info">
-            <div class="flex-username"><img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon">
+
+        <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false"></button>
+
+        <nav class="main-nav underline-indicators">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="/templates/connection.html">Керування</a></li>
+                <li class="nav-item"><a href="/templates/base.html">База серверів</a></li>
+                <li class="nav-item"><a href="#">Моніторинг</a></li>
+            </ul>
+
+        <div class="user-info-mobile">
+            <div class="flex-username">
+            <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
             <div class="username">{{ username }}</div>
             </div>
             <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
         </div>
+        </nav>
+
+        <div class="user-info desktop-user-info">
+            <div class="flex-username">
+            <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
+            <div class="username">{{ username }}</div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
+        </div>
+
     </header>
 
     <main class="content">
@@ -59,13 +81,13 @@
                     </ul>
                 </li>
                 <li>
-                    <span class="folder-label folder"><span class="icon test-icon"></span>Користувачі</span>
+                    <span class="folder-label folder"><span class="icon group-icon"></span>Користувачі</span>
                     <ul class="nested-list">
                         <li data-script="rdp-fail.ps1">Невдалі входи по RDP</li>
                     </ul>
                 </li>
                 <li>
-                    <span class="folder-label folder"><span class="icon test-icon"></span>Диск</span>
+                    <span class="folder-label folder"><span class="icon disk-icon"></span>Диск</span>
                     <ul class="nested-list">
                         <li data-script="disk-space.ps1">Дисковий простір</li>
                         <li data-script="disk-check.ps1">Аналіз простору для очистки</li>

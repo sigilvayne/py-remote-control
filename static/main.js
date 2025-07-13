@@ -131,3 +131,43 @@ document.addEventListener("DOMContentLoaded", () => {
     output.value = "";
   });
 });
+
+//-----------------------Checking active class---------------------------//
+
+document.addEventListener("DOMContentLoaded", () => {
+  const currentPath = window.location.pathname; 
+  const navItems = document.querySelectorAll('.main-nav .nav-item');
+
+  navItems.forEach(item => {
+    const link = item.querySelector('a');
+    if (!link) return;
+
+    const linkHref = link.getAttribute('href');
+
+    if (linkHref === currentPath) {
+      item.classList.add('active');
+
+      link.addEventListener('click', e => e.preventDefault());
+    } else {
+      item.classList.remove('active');
+    }
+  });
+});
+
+//------------------------------Hamburger menu---------------------------------//
+
+const menuToggle = document.querySelector('.menu-toggle');
+const mainNav = document.querySelector('.main-nav');
+
+if (menuToggle && mainNav) {
+  menuToggle.addEventListener('click', () => {
+    mainNav.classList.toggle('open');
+    menuToggle.classList.toggle('open');
+    
+    const isOpen = mainNav.classList.contains('open');
+    menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+}
+
+
+
