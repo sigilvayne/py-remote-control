@@ -165,7 +165,7 @@ def register_server():
 @login_required
 def base():
     servers = Server.query.order_by(Server.created_at.desc()).all()
-    return render_template('base.html', servers=servers)
+    return render_template('base.html', servers=servers, username=session['username'])
 
 @app.route('/health', methods=['GET'])
 def health():
