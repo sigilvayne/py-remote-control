@@ -2,10 +2,48 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Зареєстровані сервери</title>
     <link rel="stylesheet" href="/static/style.css" />
 </head>
+
 <body class="server-body">
+
+   <header class="body-header">
+
+        <div class="header-left">
+            <img src="/static/images/icon.png" alt="Лого" class="header-icon">
+            <div class="header-title">CLI</div>
+        </div>
+
+        <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false"></button>
+
+        <nav class="main-nav underline-indicators">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="/templates/connection.html">Керування</a></li>
+                <li class="nav-item"><a href="/templates/base.html">База серверів</a></li>
+                <li class="nav-item"><a href="#">Моніторинг</a></li>
+            </ul>
+
+        <div class="user-info-mobile">
+            <div class="flex-username">
+            <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
+            <div class="username">{{ username }}</div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
+        </div>
+        </nav>
+
+        <div class="user-info desktop-user-info">
+            <div class="flex-username">
+            <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
+            <div class="username">{{ username }}</div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
+        </div>
+
+    </header>
+  
     <main class="server-container">
     <h1 class="server-h1">Список серверів</h1>
     {% for s in servers %}
@@ -18,7 +56,45 @@
         </div>
   </div>
   {% endfor %}
-    <p><a href="/">← Назад</a></p>
+    <p><a href="/templates/connection.html">← Назад</a></p>
     </main>
+
+    <script>
+
+document.addEventListener("DOMContentLoaded", () => {
+  const currentPath = window.location.pathname; // full path, e.g. "/templates/base.html"
+  const navItems = document.querySelectorAll('.main-nav .nav-item');
+
+  navItems.forEach(item => {
+    const link = item.querySelector('a');
+    if (!link) return;
+
+    const linkHref = link.getAttribute('href');
+
+    if (linkHref === currentPath) {
+      item.classList.add('active');
+
+      // Disable clicking on active link
+      link.addEventListener('click', e => e.preventDefault());
+    } else {
+      item.classList.remove('active');
+    }
+  });
+});
+
+const menuToggle = document.querySelector('.menu-toggle');
+const mainNav = document.querySelector('.main-nav');
+
+if (menuToggle && mainNav) {
+  menuToggle.addEventListener('click', () => {
+    mainNav.classList.toggle('open');
+    menuToggle.classList.toggle('open');
+    
+    const isOpen = mainNav.classList.contains('open');
+    menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+}
+
+    </script>
 </body>
 </html>
