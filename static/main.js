@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (nested) {
         nested.classList.toggle('collapsed');
       }
-      label.classList.toggle('open'); // Для підсвітки активної папки
+      label.classList.toggle('open');
       e.stopPropagation();
     });
   });
@@ -18,8 +18,24 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll('#command-list .nested-list li').forEach(item => {
     item.addEventListener('click', () => {
       const script = item.dataset.script;
+      const dynamic = item.dataset.dynamic;
       const commandInput = document.getElementById('command-input');
-      if (script) {
+
+      if (dynamic === "medoc-download") {
+        fetch('/get_medoc_version')
+          .then(res => res.json())
+          .then(data => {
+            if (data.version) {
+              const version = data.version.trim();
+              const url = `https://load.medoc.ua/update/${version}.zip`;
+              commandInput.value = `download_and_run_script download-medoc-update.ps1 ${JSON.stringify(url)}`;
+            } else {
+              alert("Не вдалося отримати версію з medoc-ver.txt");
+            }
+          }).catch(err => {
+            alert("Помилка при отриманні версії Medoc: " + err);
+          });
+      } else if (script) {
         commandInput.value = `download_and_run_script ${script}`;
       } else {
         commandInput.value = item.innerText;
@@ -43,18 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
     sendBtn.textContent = "Надсилання...";
 
     for (const serverId of selectedServers) {
-      await fetch(`/set_command/${serverId}`, {
+      // Відправляємо команду і отримуємо command_id
+      const res = await fetch(`/set_command/${serverId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ command })
       });
-    }
+      const { command_id } = await res.json();
 
-    for (const serverId of selectedServers) {
+      // Чекаємо результат з конкретним command_id
       let tries = 10;
       while (tries-- > 0) {
-        const res = await fetch(`/get_result/${serverId}`);
-        const data = await res.json();
+        const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
+        const data = await resultRes.json();
         if (data.status !== "no_result") {
           output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
           break;
@@ -66,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     sendBtn.disabled = false;
     sendBtn.textContent = "Надіслати";
   }
+
 
   // 4) Завантаження списку серверів
   async function loadServers() {
@@ -85,18 +103,19 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           selectedServers.add(server);
         }
+        updateToggleSelectButton();
       });
 
       list.appendChild(li);
     });
+
+    updateToggleSelectButton();
   }
 
   window.sendCommand = sendCommand;
   loadServers();
 
-  //----------------Select/Deselect all toggle button------------------------//
-
-  // Select/Deselect all toggle button logic
+  // Select/Deselect all toggle button
   const toggleSelectBtn = document.getElementById('toggle-select-all');
   toggleSelectBtn.addEventListener('click', () => {
     const listItems = document.querySelectorAll('#server-list li');
@@ -114,17 +133,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    toggleSelectBtn.textContent = selectAll ? "Скасувати вибір" : "Вибрати всі";
+    updateToggleSelectButton();
   });
 
-  // Optional: update toggle button text depending on selection state
   function updateToggleSelectButton() {
     const listItems = document.querySelectorAll('#server-list li');
     const allSelected = [...listItems].every(li => li.classList.contains('selected'));
     toggleSelectBtn.textContent = allSelected ? "Скасувати вибір" : "Вибрати всі";
   }
 
-  // -----------------------Clear button------------------------//
+  // Clear button
   const output = document.getElementById("command-output");
   const clearBtn = document.getElementById("clear-btn");
   clearBtn.addEventListener("click", () => {
