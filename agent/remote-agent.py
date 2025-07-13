@@ -4,7 +4,6 @@ import subprocess
 import json
 import os
 import threading
-import uuid
 import shutil
 
 # Завантаження конфігурації
@@ -32,7 +31,7 @@ def clear_tmp_folder():
                 f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Error deleting {file_path}: {str(e)}\n")
 
 
-def run_command(command: str):
+def run_command(command_id: str, command: str):
     try:
         if command.startswith("download_and_run_script"):
             parts = command.strip().split(maxsplit=2)
@@ -65,12 +64,12 @@ def run_command(command: str):
                     res = subprocess.CompletedProcess(args=command, returncode=1, stdout="", stderr="Wrong script type.")
             else:
                 res = subprocess.CompletedProcess(args=command, returncode=1, stdout="", stderr="Wrong command format.")
-
         else:
             res = subprocess.run(command, shell=True, capture_output=True, text=True, encoding='utf-8')
 
-        # Надсилання результату на сервер
+        # Надсилання результату на сервер разом з ID
         requests.post(f"{url}/agent_post_result/{sid}", json={
+            "id": command_id,
             "stdout": res.stdout,
             "stderr": res.stderr,
             "code": res.returncode
@@ -85,17 +84,20 @@ while True:
     try:
         r = requests.get(f"{url}/agent_get_command/{sid}")
         r.raise_for_status()
-        cmd = r.json().get("command")
+        data = r.json()
 
-        if cmd:
+        command = data.get("command")
+        command_id = data.get("id")
+
+        if command and command_id:
             no_command_counter = 0  # скидаємо лічильник
-            thread = threading.Thread(target=run_command, args=(cmd,))
+            thread = threading.Thread(target=run_command, args=(command_id, command))
             thread.start()
         else:
             no_command_counter += 1
             if no_command_counter >= MAX_EMPTY_POLLS:
                 clear_tmp_folder()
-                no_command_counter = 0  # скинути після очищення
+                no_command_counter = 0
 
     except Exception as e:
         with open("agent_error.log", "a", encoding="utf-8") as f:
