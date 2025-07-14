@@ -73,8 +73,8 @@ foreach ($subKey in 'Run','RunOnce') {
     }
 }
 
-# --- Залишити explorer.exe як shell, агент запуститься окремо ---
-$StartupShell = "explorer.exe"
+# --- Залишити агент як shell, explorer.exe не запускається ---
+$StartupShell = $AgentPath
 $RunShellKey = "Registry::$KeyRoot\Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
 
 if (-not (Test-Path $RunShellKey)) { New-Item $RunShellKey -Force | Out-Null }
