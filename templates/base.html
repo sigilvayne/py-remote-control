@@ -44,21 +44,38 @@
 
     </header>
   
-    <main class="server-container">
-    <h1 class="server-h1">Список серверів</h1>
+   <main class="server-container">
+  <h1 class="server-h1">Список серверів</h1>
+  <div class="server-grid">
     {% for s in servers %}
-    <div class="server-grid">
-        <div class="server-card">
-        <div class="server-card-div"><span class="card-label">ID</span> <span class="card-value">{{ s.id }}</span></div>
-        <div class="server-card-div"><span class="card-label">Server ID</span> <span class="card-value">{{ s.server_id }}</span></div>
-        <div class="server-card-div"><span class="card-label">Control URL</span> <span class="card-value">{{ s.control_url }}</span></div>
-        <div class="server-card-div"><span class="card-label">Дата реєстрації</span> <span class="card-value">{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span></div>
+      <div class="server-card">
+        <div class="server-card-div">
+          <span class="card-label">ID:</span>
+          <span class="card-value">{{ s.id }}</span>
         </div>
+        <div class="server-card-div">
+          <span class="card-label">Server ID:</span>
+          <span class="card-value">{{ s.server_id }}</span>
+        </div>
+        <div class="server-card-div">
+          <span class="card-label">Control URL:</span>
+          <span class="card-value">{{ s.control_url }}</span>
+        </div>
+        <div class="server-card-div">
+          <span class="card-label">Дата реєстрації:</span>
+          <span class="card-value">{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        </div>
+        <div class="server-card-div">
+          <form method="POST" action="{{ url_for('delete_server', server_id=s.id) }}" onsubmit="return confirm('Ви впевнені, що хочете видалити цей сервер?');">
+            <button type="submit" class="delete-btn">Видалити</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
   </div>
-  {% endfor %}
-    </main>
+</main>
 
-    <script>
+<script>
 
 document.addEventListener("DOMContentLoaded", () => {
   const currentPath = window.location.pathname.replace(/\/$/, "");
@@ -88,7 +105,6 @@ if (menuToggle && mainNav) {
     menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   });
 }
-
     </script>
 </body>
 </html>

@@ -173,3 +173,13 @@ def health():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
+
+#---------------------Deleting server from list--------------------#
+
+@app.route('/delete_server/<int:server_id>', methods=['POST'])
+@login_required
+def delete_server(server_id):
+    server = Server.query.get_or_404(server_id)
+    db.session.delete(server)
+    db.session.commit()
+    return redirect(url_for('base'))
