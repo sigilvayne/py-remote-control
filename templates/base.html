@@ -91,20 +91,33 @@ document.addEventListener("DOMContentLoaded", () => {
       item.classList.remove('active');
     }
   });
+
+  const menuToggle = document.querySelector('.menu-toggle');
+  const mainNav = document.querySelector('.main-nav');
+
+  if (menuToggle && mainNav) {
+    menuToggle.setAttribute('aria-controls', mainNav.id || 'main-nav'); // add id if needed
+    menuToggle.addEventListener('click', () => {
+      mainNav.classList.toggle('open');
+      menuToggle.classList.toggle('open');
+      
+      const isOpen = mainNav.classList.contains('open');
+      menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Close menu when clicking nav links on mobile
+    document.querySelectorAll('.main-nav .nav-item a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (mainNav.classList.contains('open')) {
+          mainNav.classList.remove('open');
+          menuToggle.classList.remove('open');
+          menuToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+  }
 });
 
-const menuToggle = document.querySelector('.menu-toggle');
-const mainNav = document.querySelector('.main-nav');
-
-if (menuToggle && mainNav) {
-  menuToggle.addEventListener('click', () => {
-    mainNav.classList.toggle('open');
-    menuToggle.classList.toggle('open');
-    
-    const isOpen = mainNav.classList.contains('open');
-    menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-  });
-}
     </script>
 </body>
 </html>

@@ -58,32 +58,41 @@ document.addEventListener("DOMContentLoaded", () => {
     sendBtn.disabled = true;
     sendBtn.textContent = "Надсилання...";
 
-    for (const serverId of selectedServers) {
-      // Відправляємо команду і отримуємо command_id
-      const res = await fetch(`/set_command/${serverId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command })
-      });
-      const { command_id } = await res.json();
+    try {
+      for (const serverId of selectedServers) {
+        // Відправляємо команду і отримуємо command_id
+        const res = await fetch(`/set_command/${serverId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command })
+        });
+        if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
 
-      // Чекаємо результат з конкретним command_id
-      let tries = 10;
-      while (tries-- > 0) {
-        const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
-        const data = await resultRes.json();
-        if (data.status !== "no_result") {
-          output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
-          break;
+        const { command_id } = await res.json();
+
+        // Чекаємо результат з конкретним command_id
+        let tries = 10;
+        while (tries-- > 0) {
+          const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
+          if (!resultRes.ok) throw new Error(`Помилка при отриманні результату з сервера ${serverId}`);
+
+          const data = await resultRes.json();
+          if (data.status !== "no_result") {
+            output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
+            break;
+          }
+          await new Promise(r => setTimeout(r, 1000));
         }
-        await new Promise(r => setTimeout(r, 1000));
       }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Надіслати";
     }
-
-    sendBtn.disabled = false;
-    sendBtn.textContent = "Надіслати";
   }
 
+  window.sendCommand = sendCommand;
 
   // 4) Завантаження списку серверів
   async function loadServers() {
@@ -111,9 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateToggleSelectButton();
   }
-
-  window.sendCommand = sendCommand;
-  loadServers();
 
   // Select/Deselect all toggle button
   const toggleSelectBtn = document.getElementById('toggle-select-all');
@@ -148,11 +154,9 @@ document.addEventListener("DOMContentLoaded", () => {
   clearBtn.addEventListener("click", () => {
     output.value = "";
   });
-});
 
-//-----------------------Checking active class---------------------------//
+  //-----------------------Checking active class---------------------------//
 
- document.addEventListener("DOMContentLoaded", () => {
   const currentPath = window.location.pathname.replace(/\/$/, "");
 
   document.querySelectorAll('.main-nav .nav-item').forEach(item => {
@@ -166,22 +170,21 @@ document.addEventListener("DOMContentLoaded", () => {
       item.classList.remove('active');
     }
   });
+
+  //------------------------------Hamburger menu---------------------------------//
+
+  const menuToggle = document.querySelector('.menu-toggle');
+  const mainNav = document.querySelector('.main-nav');
+
+  if (menuToggle && mainNav) {
+    menuToggle.addEventListener('click', () => {
+      mainNav.classList.toggle('open');
+      menuToggle.classList.toggle('open');
+
+      const isOpen = mainNav.classList.contains('open');
+      menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  }
+
+  loadServers();
 });
-
-//------------------------------Hamburger menu---------------------------------//
-
-const menuToggle = document.querySelector('.menu-toggle');
-const mainNav = document.querySelector('.main-nav');
-
-if (menuToggle && mainNav) {
-  menuToggle.addEventListener('click', () => {
-    mainNav.classList.toggle('open');
-    menuToggle.classList.toggle('open');
-    
-    const isOpen = mainNav.classList.contains('open');
-    menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-  });
-}
-
-
-
