@@ -7,13 +7,15 @@ import threading
 import os
 from flask import send_from_directory
 import uuid
+from io import BytesIO
+import zipfile
+from flask import send_file
 
 
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app)
 
-# Налаштування
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'data', 'servers.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
@@ -25,7 +27,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 Session(app)
 db = SQLAlchemy(app)
 
-# --- База даних ---
+#---------------------Database init-------------------#
+
 class Server(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.String(100), unique=True, nullable=False)
@@ -35,17 +38,16 @@ class Server(db.Model):
     def __repr__(self):
         return f"<Server {self.server_id}>"
 
-# Ініціалізація БД
 with app.app_context():
     db.create_all()
 
-# --- Дані ---
+#---------------------Autentication-------------------#
+
 users = {'marusiak': 'admin123'}
 
 commands = {}  # server_id -> {"id": ..., "command": ...}
 results = {}   # server_id -> {"id": ..., "stdout": ..., ...}
 
-# --- Авторизація ---
 def login_required(f):
     from functools import wraps
     @wraps(f)
@@ -55,7 +57,8 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
-# --- Веб сторінки ---
+#---------------------Web endpoints--------------------#
+
 @app.route('/')
 @login_required
 def index():
@@ -86,7 +89,8 @@ def list_servers():
 
 
 
-# --- Керування командами ---
+#---------------------Commands control--------------------#
+
 @app.route('/set_command/<server_id>', methods=['POST'])
 @login_required
 def set_command(server_id):
@@ -121,7 +125,7 @@ def get_medoc_version():
         return jsonify({"error": str(e)}), 500
 
 
-# --- Завантаження скриптів ---
+#---------------------Scripts loader--------------------#
 
 @app.route('/scripts/<path:filename>')
 def serve_script(filename):
@@ -160,7 +164,8 @@ def register_server():
     db.session.commit()
     return jsonify({"status": "ok", "message": "Server registered"}), 201
 
-# --- Веб інтерфейс бази даних ---
+#--------------------Bases--------------------#
+
 @app.route('/base')
 @login_required
 def base():
@@ -183,3 +188,27 @@ def delete_server(server_id):
     db.session.delete(server)
     db.session.commit()
     return redirect(url_for('base'))
+
+
+#---------------------Download installer--------------------#
+
+@app.route('/download', methods=['GET'])
+@login_required
+def download_installer():
+    installer_dir = os.path.join(basedir, 'installer')
+
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(installer_dir):
+            for filename in files:
+                file_path = os.path.join(root, filename)
+                arcname = os.path.relpath(file_path, installer_dir)
+                zf.write(file_path, arcname)
+    memory_file.seek(0)
+
+    return send_file(
+        memory_file,
+        download_name='installer.zip',
+        as_attachment=True,
+        mimetype='application/zip'
+    )
