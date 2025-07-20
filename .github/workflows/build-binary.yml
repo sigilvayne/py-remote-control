@@ -1,10 +1,10 @@
-name: Build init.exe
+name: Build and Release
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_init:
     runs-on: windows-latest
 
     steps:
@@ -19,23 +19,58 @@ jobs:
       - name: Install dependencies
         run: pip install pyinstaller
 
-      - name: Build .exe from Python script
+      - name: Build init.exe from Python script
         run: pyinstaller --onefile --noconsole agent/init.py
 
-      - name: Prepare ZIP archive
+      - name: Prepare ZIP archive for init.exe
         run: |
           mkdir dist_zip
           copy dist\init.exe dist_zip\init.exe
           powershell -Command "Compress-Archive -Path dist_zip\* -DestinationPath dist\init.zip"
 
-      - name: Create or update release and upload assets
+      - name: Create or update 'init-exe-release'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: init-exe-release
-          name: Init EXE Release
+          name: Init Release
           files: |
             dist/init.exe
             dist/init.zip
           update_existing: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build_install:
+    runs-on: windows-latest
+    needs: build_init
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install pyinstaller
+
+      - name: Build agent.exe from Python script
+        run: pyinstaller --onefile --noconsole agent/agent.py
+
+      - name: Create or update 'install' release (hidden)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: install-release
+          name: Installation 
+          files: |
+            dist/agent.exe
+            agent/remove-uac.ps1
+          update_existing: true
+          draft: true       
+          prerelease: true  
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
