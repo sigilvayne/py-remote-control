@@ -5,74 +5,83 @@ from tkinter import messagebox
 import requests
 import zipfile
 
-CONFIG_PATH = "C:/Script/agent/config.json"
-TEMP_ZIP_PATH = "installer.zip"
+CONFIG_PATH    = "C:/Script/agent/config.json"
+TEMP_DIR      = "downloaded_binaries"
+REPO          = "sigilvayne/py-remote-control"
+RELEASE_TAG   = "install-release"  # тег релізу, який треба скачати
 
-session = requests.Session()  # Глобальна сесія з cookies
+session = requests.Session()
 
 def login(control_url, username, password):
     try:
-        response = session.post(control_url + "/login", data={
+        resp = session.post(control_url + "/login", data={
             "username": username,
             "password": password
         })
-        if response.status_code == 200 and "Set-Cookie" in response.headers:
+        if resp.status_code in (200, 302):
             return True
-        elif response.status_code == 302:
-            return True  # деякі Flask логіни редіректять
-        else:
-            messagebox.showerror("Помилка входу", f"Статус: {response.status_code}\n{response.text}")
-            return False
+        messagebox.showerror("Помилка входу", f"Статус: {resp.status_code}\n{resp.text}")
     except Exception as e:
-        messagebox.showerror("Помилка", f"Не вдалося увійти:\n{e}")
-        return False
+        messagebox.showerror("Помилка входу", str(e))
+    return False
 
-def download_and_extract(control_url):
+def download_all_assets_from_tagged_release():
     try:
-        headers = {
-            "User-Agent": "Mozilla/5.0"
-        }
+        # Отримуємо реліз за тегом
+        api_url = f"https://api.github.com/repos/{REPO}/releases/tags/{RELEASE_TAG}"
+        resp = requests.get(api_url)
+        resp.raise_for_status()
+        release = resp.json()
 
-        response = session.get(control_url + "/download", stream=True, headers=headers)
-        if response.status_code == 200:
-            content_type = response.headers.get("Content-Type", "")
-            if "zip" not in content_type.lower():
-                raise Exception(f"Очікувався zip, але отримано: {content_type}")
+        assets = release.get("assets", [])
+        if not assets:
+            raise Exception(f"У релізі з тегом '{RELEASE_TAG}' немає файлів для завантаження.")
 
-            with open(TEMP_ZIP_PATH, "wb") as f:
-                for chunk in response.iter_content(chunk_size=8192):
+        if not os.path.exists(TEMP_DIR):
+            os.makedirs(TEMP_DIR)
+
+        for asset in assets:
+            name = asset["name"]
+            download_url = asset["browser_download_url"]
+            messagebox.showinfo("Завантаження", f"Завантажую файл: {name}")
+
+            r = session.get(download_url, stream=True)
+            r.raise_for_status()
+
+            filepath = os.path.join(TEMP_DIR, name)
+            with open(filepath, "wb") as f:
+                for chunk in r.iter_content(8192):
                     f.write(chunk)
 
-            with zipfile.ZipFile(TEMP_ZIP_PATH, "r") as zip_ref:
-                zip_ref.extractall(os.getcwd())
+            # Якщо це zip — розпаковуємо у TEMP_DIR і видаляємо zip
+            if name.lower().endswith(".zip"):
+                try:
+                    with zipfile.ZipFile(filepath, "r") as z:
+                        z.extractall(TEMP_DIR)
+                    os.remove(filepath)
+                except zipfile.BadZipFile:
+                    messagebox.showwarning("Увага", f"Файл {name} не є валідним zip-архівом.")
 
-            os.remove(TEMP_ZIP_PATH)
-            messagebox.showinfo("Успіх", "Файли успішно завантажено та розпаковано.")
-        else:
-            messagebox.showerror("Помилка", f"Помилка при завантаженні: {response.status_code}\n{response.text}")
+        messagebox.showinfo("Успіх", f"Усі файли з релізу '{RELEASE_TAG}' завантажено та розпаковано (де можливо).")
     except Exception as e:
-        with open("debug_downloaded_content.bin", "wb") as f:
-            f.write(response.content)
-        messagebox.showerror("Помилка", f"Не вдалося завантажити інсталятор:\n{e}")
+        messagebox.showerror("Помилка завантаження", str(e))
 
 if not os.path.exists(CONFIG_PATH):
     os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
 
     def save():
-        server_id = e1.get().strip()
+        server_id   = e1.get().strip()
         control_url = e2.get().strip().rstrip('/')
-        username = e3.get().strip()
-        password = e4.get().strip()
+        username    = e3.get().strip()
+        password    = e4.get().strip()
 
-        if not server_id or not control_url or not username or not password:
+        if not all([server_id, control_url, username, password]):
             messagebox.showerror("Помилка", "Усі поля обов’язкові!")
             return
 
-        # Спроба входу
         if not login(control_url, username, password):
             return
 
-        # Збереження конфігу
         with open(CONFIG_PATH, "w") as f:
             json.dump({
                 "server_id": server_id,
@@ -80,26 +89,24 @@ if not os.path.exists(CONFIG_PATH):
                 "username": username
             }, f)
 
-        # Реєстрація сервера
         try:
-            response = session.post(control_url + "/register_server", json={
+            resp = session.post(control_url + "/register_server", json={
                 "server_id": server_id,
                 "control_center_url": control_url
             })
-            if response.status_code == 201:
+            if resp.status_code == 201:
                 messagebox.showinfo("Успіх", "Сервер зареєстровано.")
-            elif response.status_code == 200:
+            elif resp.status_code == 200:
                 messagebox.showinfo("Інформація", "Цей сервер вже зареєстровано.")
             else:
-                messagebox.showerror("Помилка", f"Статус: {response.status_code}, Відповідь: {response.text}")
+                messagebox.showerror("Помилка", f"Статус: {resp.status_code}\n{resp.text}")
                 return
         except Exception as e:
-            messagebox.showerror("Помилка", f"Не вдалося зареєструвати сервер:\n{e}")
+            messagebox.showerror("Помилка реєстрації", str(e))
             return
 
-        # Завантаження та розпакування
-        download_and_extract(control_url)
-
+        # Завантаження усіх файлів з релізу за тегом
+        download_all_assets_from_tagged_release()
         root.destroy()
 
     # GUI
@@ -107,20 +114,16 @@ if not os.path.exists(CONFIG_PATH):
     root.title("Налаштування агента")
 
     tk.Label(root, text="Server ID:").grid(row=0, column=0, padx=10, pady=5, sticky="e")
-    e1 = tk.Entry(root, width=30)
-    e1.grid(row=0, column=1, padx=10, pady=5)
+    e1 = tk.Entry(root, width=30); e1.grid(row=0, column=1, padx=10, pady=5)
 
-    tk.Label(root, text="Control Center URL:").grid(row=1, column=0, padx=10, pady=5, sticky="e")
-    e2 = tk.Entry(root, width=30)
-    e2.grid(row=1, column=1, padx=10, pady=5)
+    tk.Label(root, text="Control URL:").grid(row=1, column=0, padx=10, pady=5, sticky="e")
+    e2 = tk.Entry(root, width=30); e2.grid(row=1, column=1, padx=10, pady=5)
 
     tk.Label(root, text="Username:").grid(row=2, column=0, padx=10, pady=5, sticky="e")
-    e3 = tk.Entry(root, width=30)
-    e3.grid(row=2, column=1, padx=10, pady=5)
+    e3 = tk.Entry(root, width=30); e3.grid(row=2, column=1, padx=10, pady=5)
 
     tk.Label(root, text="Password:").grid(row=3, column=0, padx=10, pady=5, sticky="e")
-    e4 = tk.Entry(root, width=30, show="*")
-    e4.grid(row=3, column=1, padx=10, pady=5)
+    e4 = tk.Entry(root, width=30, show="*"); e4.grid(row=3, column=1, padx=10, pady=5)
 
     tk.Button(root, text="Зберегти", command=save).grid(row=4, column=0, columnspan=2, pady=10)
 
