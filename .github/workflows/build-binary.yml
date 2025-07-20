@@ -1,0 +1,41 @@
+name: Build init.exe
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install pyinstaller
+
+      - name: Build .exe from Python script
+        run: pyinstaller --onefile --noconsole agent/init.py
+
+      - name: Prepare ZIP archive
+        run: |
+          mkdir dist_zip
+          copy dist\init.exe dist_zip\init.exe
+          powershell -Command "Compress-Archive -Path dist_zip\* -DestinationPath dist\init.zip"
+
+      - name: Create or update release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: init-exe-release
+          name: Init EXE Release
+          files: |
+            dist/init.exe
+            dist/init.zip
+          update_existing: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

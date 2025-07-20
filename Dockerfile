@@ -9,7 +9,6 @@ COPY api.py .
 COPY templates/ ./templates/
 COPY static ./static
 COPY scripts ./scripts
-COPY installer ./installer
 
 RUN mkdir -p /app/data
 
