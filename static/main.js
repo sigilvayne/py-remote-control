@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const { command_id } = await res.json();
 
         // Чекаємо результат з конкретним command_id
-        let tries = 10;
+        let tries = 30;
         while (tries-- > 0) {
           const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
           if (!resultRes.ok) throw new Error(`Помилка при отриманні результату з сервера ${serverId}`);
