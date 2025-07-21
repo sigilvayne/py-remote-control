@@ -1,0 +1,67 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: 
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
+
+  deploy-to-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install SSH key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+    - name: Deploy and run Docker container on EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << EOF
+          sudo yum update -y
+          sudo amazon-linux-extras enable docker
+          sudo yum install -y docker
+          sudo systemctl enable docker
+          sudo systemctl start docker
+          sudo usermod -a -G docker ec2-user
+
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
+          sudo docker stop control-center || true
+          sudo docker rm control-center || true
+
+          mkdir -p /home/ec2-user/data
+          touch /home/ec2-user/data/.keep
+          sudo chown -R ec2-user:ec2-user /home/ec2-user/data
+          sudo chmod 755 /home/ec2-user/data
+
+          sudo docker run -d -p 8000:8000 \
+            -e FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }} \
+            -e ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }} \
+            -e ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} \
+            -e AGENT_TOKEN=${{ secrets.AGENT_TOKEN }} \
+            --name control-center \
+            -v /home/ec2-user/data:/app/data \
+            ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
+        EOF

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Send Command</title>
+</head>
+<body>
+  <h1>Надіслати команду агенту</h1>
+  <form id="commandForm">
+    <label>Server ID:</label>
+    <input type="text" id="server_id" value="ms21"><br><br>
+    
+    <label>Command:</label>
+    <input type="text" id="command" value="echo Hello from agent"><br><br>
+    
+    <button type="submit">Надіслати</button>
+  </form>
+
+  <pre id="response"></pre>
+
+  <script>
+    document.getElementById("commandForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const serverId = document.getElementById("server_id").value;
+      const command = document.getElementById("command").value;
+      const url = `http://13.51.121.136:8000/set_command/${serverId}`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ command: command })
+      });
+
+      const json = await res.json();
+      document.getElementById("response").textContent = JSON.stringify(json, null, 2);
+    });
+  </script>
+</body>
+</html>

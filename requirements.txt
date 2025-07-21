@@ -1,0 +1,8 @@
+flask
+gunicorn
+flask-cors
+Flask-Session
+flask_sqlalchemy
+dotenv
+load_dotenv
+python-dotenv

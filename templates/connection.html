@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Центр керування серверами</title>
+    <link rel="icon" type="image/png" href="/static/images/icon.png">
+    <link href="https://cdn-uicons.flaticon.com/uicons-thin-straight/css/uicons-thin-straight.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <header class="headers">
+
+        <div class="header-left">
+            <img src="/static/images/icon.png" alt="Лого" class="header-icon">
+            <div class="header-title">CLI</div>
+        </div>
+
+        <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false"></button>
+
+        <nav class="main-nav underline-indicators">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="{{ url_for('index') }}">Керування</a></li>
+                <li class="nav-item"><a href="{{ url_for('base') }}">База серверів</a></li>
+                <li class="nav-item"><a href="#">Моніторинг</a></li>
+            </ul>
+
+        <div class="user-info-mobile">
+            <div class="flex-username">
+            <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
+            <span class="username">{{ username }}</span>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
+        </div>
+        </nav>
+
+        <div class="user-info desktop-user-info">
+            <div class="flex-username">
+            <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
+            <div class="username">{{ username }}</div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
+        </div>
+
+    </header>
+
+    <main class="content">
+        <div class="left-panel">
+            <h2 class="h2-margin">Команди</h2>
+            <ul id="command-list">
+                <li>
+                    <span class="folder-label folder"><span class="icon cmd-icon"></span>Стандартні</span>
+                    <ul class="nested-list collapsed">
+                        <li>ipconfig</li>
+                        <li>hostname</li>
+                        <li>shutdown /r /t 0</li>
+                        <li data-script="sys-info.ps1">Інформація про систему</li>
+                        <li data-script="process-list.ps1">Список процесів</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder"><span class="icon hive-icon"></span>Medoс</span>
+                    <ul class="nested-list collapsed">
+                        <li data-script="download-medoc-update.ps1" data-dynamic="medoc-download">Завантажити оновлення</li>
+                        <li data-script="medoc-update.exe">Запустити оновлення</li>
+                        <li data-script="read-medoc-log.ps1">Перевірити версію</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder"><span class="icon update-icon"></span>Оновлення</span>
+                    <ul class="nested-list collapsed">
+                        <li data-script="search-updates.ps1">Пошук оновлень</li>
+                        <li data-script="tail-logs.ps1">Прочитати логи оновлення</li>
+                        <li data-script="run-update.ps1">Інсталювати оновлення</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder"><span class="icon test-icon"></span>Тестування</span>
+                    <ul class="nested-list collapsed">
+                        <li data-script="send-script.ps1">send-script.ps1</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder"><span class="icon group-icon"></span>Користувачі</span>
+                    <ul class="nested-list collapsed">
+                        <li data-script="rdp-fail.ps1">Активні користувачі</li>
+                        <li data-script="rdp-fail.ps1">Останній вхід користувачів</li>
+                        <li data-script="rdp-fail.ps1">Завершити відключені сеанси</li>
+                        <li data-script="rdp-fail.ps1">Невдалі входи по RDP</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder"><span class="icon disk-icon"></span>Диск</span>
+                    <ul class="nested-list collapsed">
+                        <li data-script="disk-space.ps1">Дисковий простір</li>
+                        <li data-script="disk-check.ps1">Аналіз простору для очистки</li>
+                        <li data-script="disk-cleanup.ps1">Очистка диску</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder"><span class="icon handy-icon"></span>DISM</span>
+                    <ul class="nested-list collapsed">
+                        <li data-script="dism-analyze.ps1">Аналіз DISM</li>
+                        <li data-script="dism-cleanup.ps1">Очистка DISM</li>
+                        <li data-script="dism-health.ps1">Стан системи</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder"><span class="icon guard-icon"></span>RDP Guard</span>
+                    <ul class="nested-list collapsed">
+                        <li data-script="rdpguard-unlock.ps1">Розблокувати усі IP</li>
+                        <li data-script="rdpguard-check-license.ps1">Перевірити ліцензію</li>
+                        <li data-script="rdpguard-restore-license.ps1">Оновити ліцензію</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="right-panel">
+            <h2 class="h2-margin">Сервери</h2>
+            <ul id="server-list"></ul>
+            <input type="text" id="server-id" placeholder="Введіть ім'я серверу вручну..." class="server-input">
+            <button id="toggle-select-all" class="select-btn">Вибрати всі</button>
+        </div>
+
+        <div class="main-panel">
+            <div class="command-editor">
+                <h2 class="h2-margin">Команда</h2>
+                <textarea id="command-input" rows="3" placeholder="Оберіть команду або введіть свою..." class="command-input"></textarea>
+                <div class="flex-buttons">
+                <button id="send-btn" onclick="sendCommand()" style="font-weight: bold;">Надіслати</button>
+                <button id="clear-btn"><span class="icon clear-icon"></span></button>
+                <button id="cycle-btn"><span class="icon cycle-icon"></span></button>
+                </div>
+            </div>
+                <textarea class="command-output" id="command-output" placeholder="Результати команд з’являться тут..." readonly></textarea>
+            </div>
+        </div>
+    </main>
+
+<script src="/static/main.js"></script>
+</body>
+</html>

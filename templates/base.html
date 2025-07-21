@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Зареєстровані сервери</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body class="server-body">
+
+   <header class="body-header">
+
+        <div class="header-left">
+            <img src="/static/images/icon.png" alt="Лого" class="header-icon">
+            <div class="header-title">CLI</div>
+        </div>
+
+        <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false"></button>
+
+        <nav class="main-nav underline-indicators">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="{{ url_for('index') }}">Керування</a></li>
+                <li class="nav-item"><a href="{{ url_for('base') }}">База серверів</a></li>
+                <li class="nav-item"><a href="#">Моніторинг</a></li>
+            </ul>
+
+        <div class="user-info-mobile">
+            <div class="flex-username">
+            <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
+            <div class="username">{{ username }}</div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
+        </div>
+        </nav>
+
+        <div class="user-info desktop-user-info">
+            <div class="flex-username">
+            <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
+            <div class="username">{{ username }}</div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
+        </div>
+
+    </header>
+  
+   <main class="server-container">
+  <h1 class="server-h1">Список серверів</h1>
+  <div class="server-grid">
+    {% for s in servers %}
+      <div class="server-card">
+        <div class="server-card-div">
+          <span class="card-label">ID:</span>
+          <span class="card-value">{{ s.id }}</span>
+        </div>
+        <div class="server-card-div">
+          <span class="card-label">Server ID:</span>
+          <span class="card-value">{{ s.server_id }}</span>
+        </div>
+        <div class="server-card-div">
+          <span class="card-label">Control URL:</span>
+          <span class="card-value">{{ s.control_url }}</span>
+        </div>
+        <div class="server-card-div">
+          <span class="card-label">Дата реєстрації:</span>
+          <span class="card-value">{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        </div>
+        <div class="server-card-div">
+          <form method="POST" action="{{ url_for('delete_server', server_id=s.id) }}" onsubmit="return confirm('Ви впевнені, що хочете видалити цей сервер?');">
+            <button type="submit" class="delete-btn">Видалити</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</main>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+  const currentPath = window.location.pathname.replace(/\/$/, "");
+
+  document.querySelectorAll('.main-nav .nav-item').forEach(item => {
+    const link = item.querySelector('a');
+    if (!link) return;
+
+    const href = link.getAttribute('href').replace(/\/$/, "");
+    if (href === currentPath) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
+    }
+  });
+
+  const menuToggle = document.querySelector('.menu-toggle');
+  const mainNav = document.querySelector('.main-nav');
+
+  if (menuToggle && mainNav) {
+    menuToggle.setAttribute('aria-controls', mainNav.id || 'main-nav'); // add id if needed
+    menuToggle.addEventListener('click', () => {
+      mainNav.classList.toggle('open');
+      menuToggle.classList.toggle('open');
+      
+      const isOpen = mainNav.classList.contains('open');
+      menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Close menu when clicking nav links on mobile
+    document.querySelectorAll('.main-nav .nav-item a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (mainNav.classList.contains('open')) {
+          mainNav.classList.remove('open');
+          menuToggle.classList.remove('open');
+          menuToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+  }
+});
+
+    </script>
+</body>
+</html>
