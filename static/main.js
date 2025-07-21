@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   //-----------------------Send command---------------------------//
+
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
     const command = commandInput.value.trim();
@@ -62,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       for (const serverId of selectedServers) {
-        // Відправляємо команду і отримуємо command_id
         const res = await fetch(`/set_command/${serverId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -72,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const { command_id } = await res.json();
 
-        // Чекаємо результат з конкретним command_id
         let tries = 30;
         while (tries-- > 0) {
           const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
@@ -97,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.sendCommand = sendCommand;
 
   //-----------------------Load script list---------------------------//
-  
+
   async function loadServers() {
     const res = await fetch('/servers');
     const servers = await res.json();
@@ -125,38 +124,44 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Select/Deselect all toggle button
-  const toggleSelectBtn = document.getElementById('toggle-select-all');
-  toggleSelectBtn.addEventListener('click', () => {
-    const listItems = document.querySelectorAll('#server-list li');
-    const selectAll = toggleSelectBtn.textContent === "Вибрати всі";
+  const toggleSelectBtn = document.getElementById('toggle-select-all'); // [NEW: safety check]
+  if (toggleSelectBtn) { // [NEW: safety check]
+    toggleSelectBtn.addEventListener('click', () => {
+      const listItems = document.querySelectorAll('#server-list li');
+      const selectAll = toggleSelectBtn.textContent === "Вибрати всі";
 
-    listItems.forEach(li => {
-      const server = li.textContent;
+      listItems.forEach(li => {
+        const server = li.textContent;
 
-      if (selectAll && !selectedServers.has(server)) {
-        li.classList.add('selected');
-        selectedServers.add(server);
-      } else if (!selectAll && selectedServers.has(server)) {
-        li.classList.remove('selected');
-        selectedServers.delete(server);
-      }
+        if (selectAll && !selectedServers.has(server)) {
+          li.classList.add('selected');
+          selectedServers.add(server);
+        } else if (!selectAll && selectedServers.has(server)) {
+          li.classList.remove('selected');
+          selectedServers.delete(server);
+        }
+      });
+
+      updateToggleSelectButton();
     });
-
-    updateToggleSelectButton();
-  });
+  }
 
   function updateToggleSelectButton() {
     const listItems = document.querySelectorAll('#server-list li');
     const allSelected = [...listItems].every(li => li.classList.contains('selected'));
-    toggleSelectBtn.textContent = allSelected ? "Скасувати вибір" : "Вибрати всі";
+    if (toggleSelectBtn) { // [NEW: safety check]
+      toggleSelectBtn.textContent = allSelected ? "Скасувати вибір" : "Вибрати всі";
+    }
   }
 
   // Clear button
-  const output = document.getElementById("command-output");
-  const clearBtn = document.getElementById("clear-btn");
-  clearBtn.addEventListener("click", () => {
-    output.value = "";
-  });
+  const output = document.getElementById("command-output"); // [NEW: safety check]
+  const clearBtn = document.getElementById("clear-btn");     // [NEW: safety check]
+  if (clearBtn && output) { // [NEW: safety check]
+    clearBtn.addEventListener("click", () => {
+      output.value = "";
+    });
+  }
 
   //-----------------------Checking active class---------------------------//
 
