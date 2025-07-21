@@ -6,7 +6,8 @@ import requests
 import zipfile
 
 CONFIG_PATH    = "C:/Script/agent/config.json"
-TEMP_DIR      = "downloaded_binaries"
+ROOT_DIR      = "C:/Script/agent"
+TEMP_DIR      = "downloaded_binaries"  # No longer used
 REPO          = "sigilvayne/py-remote-control"
 RELEASE_TAG   = "install"  
 
@@ -32,18 +33,17 @@ def download_all_assets_from_tagged_release():
         if not assets:
             raise Exception(f"У релізі з тегом '{RELEASE_TAG}' немає файлів для завантаження.")
 
-        if not os.path.exists(TEMP_DIR):
-            os.makedirs(TEMP_DIR)
+        if not os.path.exists(ROOT_DIR):
+            os.makedirs(ROOT_DIR)
 
         for asset in assets:
             name = asset["name"]
             download_url = asset["browser_download_url"]
-            messagebox.showinfo("Завантаження", f"Завантажую файл: {name}")
 
             r = session.get(download_url, stream=True)
             r.raise_for_status()
 
-            filepath = os.path.join(TEMP_DIR, name)
+            filepath = os.path.join(ROOT_DIR, name)
             with open(filepath, "wb") as f:
                 for chunk in r.iter_content(8192):
                     f.write(chunk)
@@ -51,17 +51,16 @@ def download_all_assets_from_tagged_release():
             if name.lower().endswith(".zip"):
                 try:
                     with zipfile.ZipFile(filepath, "r") as z:
-                        z.extractall(TEMP_DIR)
+                        z.extractall(ROOT_DIR)
                     os.remove(filepath)
                 except zipfile.BadZipFile:
-                    messagebox.showwarning("Увага", f"Файл {name} не є валідним zip-архівом.")
+                    messagebox.showerror("Помилка", f"Файл {name} не є валідним zip-архівом.")
 
-        messagebox.showinfo("Успіх", f"Усі файли з релізу '{RELEASE_TAG}' завантажено та розпаковано (де можливо).")
     except Exception as e:
         messagebox.showerror("Помилка завантаження", str(e))
 
 if not os.path.exists(CONFIG_PATH):
-    os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+    os.makedirs(ROOT_DIR, exist_ok=True)
 
     def save():
         server_id   = e1.get().strip()
