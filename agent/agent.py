@@ -40,6 +40,8 @@ def run_command(command_id: str, command: str):
                 script_url = f"{url}/scripts/{script_name}?token={agent_token}"
                 local_path = os.path.join(SCRIPT_DIR, script_name)
 
+                os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
                 script_res = requests.get(script_url)
                 script_res.raise_for_status()
                 with open(local_path, "wb") as f:

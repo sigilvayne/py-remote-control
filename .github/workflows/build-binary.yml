@@ -73,6 +73,7 @@ jobs:
             dist/agent.exe
             agent/remove-uac.ps1
             agent/service.bat
+            agent/uninstall.bat
           draft: false
           prerelease: false 
         env:
