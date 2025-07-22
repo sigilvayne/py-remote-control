@@ -120,7 +120,12 @@
         <div class="right-panel">
             <h2 class="h2-margin">Сервери</h2>
             <ul id="server-list"></ul>
-            <input type="text" id="server-id" placeholder="Введіть ім'я серверу вручну..." class="server-input">
+            <div id="empty-server-text" class="empty-text">
+                <div class="empty-content">
+                <img src="/static/images/data-not-found.svg" alt="Порожній список" class="empty-icon">
+                <span>Тут поки що пусто</span>
+            </div>
+            </div>
             <button id="toggle-select-all" class="select-btn">Вибрати всі</button>
         </div>
 

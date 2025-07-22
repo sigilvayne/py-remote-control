@@ -98,10 +98,20 @@ document.addEventListener("DOMContentLoaded", () => {
   //-----------------------Load script list---------------------------//
 
   async function loadServers() {
-    const res = await fetch('/servers');
-    const servers = await res.json();
-    const list = document.getElementById('server-list');
-    list.innerHTML = '';
+  const res = await fetch('/servers');
+  const servers = await res.json();
+  const list = document.getElementById('server-list');
+  const emptyText = document.getElementById('empty-server-text');
+  const toggleSelectBtn = document.getElementById('toggle-select-all');
+
+  list.innerHTML = '';
+
+  if (servers.length === 0) {
+    emptyText.style.display = 'block';
+    if (toggleSelectBtn) toggleSelectBtn.style.display = 'none';
+  } else {
+    emptyText.style.display = 'none';
+    if (toggleSelectBtn) toggleSelectBtn.style.display = 'inline-block';
 
     servers.forEach(server => {
       const li = document.createElement('li');
@@ -119,9 +129,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       list.appendChild(li);
     });
-
-    updateToggleSelectButton();
   }
+
+  updateToggleSelectButton();
+}
 
   // Select/Deselect all toggle button
   const toggleSelectBtn = document.getElementById('toggle-select-all'); // [NEW: safety check]

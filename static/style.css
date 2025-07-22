@@ -317,10 +317,10 @@ button:disabled {
 }
 
 .select-btn {
-  margin:0.5rem 0;
-  padding:.5rem;
-  background-color: #007acc;
-  font-weight: bold;
+    margin:0.5rem 0;
+    padding:.5rem;
+    background-color: #007acc;
+    font-weight: bold;
 }
 
 /* ----------- Списки ----------- */
@@ -535,6 +535,33 @@ ul.nested-list li:hover {
   justify-content: center;
   align-items: center;
   z-index: 9999;
+}
+
+.empty-content {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0.7;
+}
+
+.empty-icon {
+    display: block;
+    width: 10rem;
+    height: auto;
+    stroke: #888;
+}
+
+.empty-text{
+    display: none;
+}
+
+.empty-text span {
+    color: #888;
+    font-size: 1rem;
+    opacity: 0.7;
+    user-select: none;
+    text-align: center;
 }
 
 /*------------------------------------------*/

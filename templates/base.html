@@ -46,33 +46,43 @@
   
    <main class="server-container">
   <h1 class="server-h1">Список серверів</h1>
-  <div class="server-grid">
-    {% for s in servers %}
-      <div class="server-card">
-        <div class="server-card-div">
-          <span class="card-label">ID:</span>
-          <span class="card-value">{{ s.id }}</span>
-        </div>
-        <div class="server-card-div">
-          <span class="card-label">Server ID:</span>
-          <span class="card-value">{{ s.server_id }}</span>
-        </div>
-        <div class="server-card-div">
-          <span class="card-label">Control URL:</span>
-          <span class="card-value">{{ s.control_url }}</span>
-        </div>
-        <div class="server-card-div">
-          <span class="card-label">Дата реєстрації:</span>
-          <span class="card-value">{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
-        </div>
-        <div class="server-card-div">
-          <form method="POST" action="{{ url_for('delete_server', server_id=s.id) }}" onsubmit="return confirm('Ви впевнені, що хочете видалити цей сервер?');">
-            <button type="submit" class="delete-btn">Видалити</button>
-          </form>
-        </div>
+
+  {% if servers|length == 0 %}
+    <div class="empty-text">
+      <div class="empty-content">
+        <img src="/static/images/data-not-found.svg" alt="Порожній список" class="empty-icon">
+        <span>Тут поки що пусто</span>
       </div>
-    {% endfor %}
-  </div>
+    </div>
+  {% else %}
+    <div class="server-grid">
+      {% for s in servers %}
+        <div class="server-card">
+          <div class="server-card-div">
+            <span class="card-label">ID:</span>
+            <span class="card-value">{{ s.id }}</span>
+          </div>
+          <div class="server-card-div">
+            <span class="card-label">Server ID:</span>
+            <span class="card-value">{{ s.server_id }}</span>
+          </div>
+          <div class="server-card-div">
+            <span class="card-label">Control URL:</span>
+            <span class="card-value">{{ s.control_url }}</span>
+          </div>
+          <div class="server-card-div">
+            <span class="card-label">Дата реєстрації:</span>
+            <span class="card-value">{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+          </div>
+          <div class="server-card-div">
+            <form method="POST" action="{{ url_for('delete_server', server_id=s.id) }}" onsubmit="return confirm('Ви впевнені, що хочете видалити цей сервер?');">
+              <button type="submit" class="delete-btn">Видалити</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 </main>
 
 <script src="/static/main.js"></script>
