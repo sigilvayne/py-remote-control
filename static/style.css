@@ -552,10 +552,6 @@ ul.nested-list li:hover {
     stroke: #888;
 }
 
-.empty-text{
-    display: none;
-}
-
 .empty-text span {
     color: #888;
     font-size: 1rem;
