@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const selectedServers = new Set();
 
-  //-----------------------Folder---------------------------//
-
+  //-----------------------Folder toggling---------------------------//
   document.querySelectorAll('.folder-label').forEach(label => {
     label.style.cursor = 'pointer';
     label.addEventListener('click', (e) => {
@@ -15,8 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  //-----------------------Commands---------------------------//
-
+  //-----------------------Commands click handling---------------------------//
   document.querySelectorAll('#command-list .nested-list li').forEach(item => {
     item.addEventListener('click', () => {
       const script = item.dataset.script;
@@ -46,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   //-----------------------Send command---------------------------//
-
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
     const command = commandInput.value.trim();
@@ -95,48 +92,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.sendCommand = sendCommand;
 
-  //-----------------------Load script list---------------------------//
-
+  //-----------------------Load servers---------------------------//
   async function loadServers() {
-  const res = await fetch('/servers');
-  const servers = await res.json();
-  const list = document.getElementById('server-list');
-  const emptyText = document.getElementById('empty-server-text');
-  const toggleSelectBtn = document.getElementById('toggle-select-all');
+    const res = await fetch('/servers');
+    const servers = await res.json();
+    const list = document.getElementById('server-list');
+    const emptyText = document.getElementById('empty-server-text');
+    const toggleSelectBtn = document.getElementById('toggle-select-all');
 
-  list.innerHTML = '';
+    list.innerHTML = '';
 
-  if (servers.length === 0) {
-    emptyText.style.display = 'block';
-    if (toggleSelectBtn) toggleSelectBtn.style.display = 'none';
-  } else {
-    emptyText.style.display = 'none';
-    if (toggleSelectBtn) toggleSelectBtn.style.display = 'inline-block';
+    if (servers.length === 0) {
+      emptyText.style.display = 'block';
+      if (toggleSelectBtn) toggleSelectBtn.style.display = 'none';
+    } else {
+      emptyText.style.display = 'none';
+      if (toggleSelectBtn) toggleSelectBtn.style.display = 'inline-block';
 
-    servers.forEach(server => {
-      const li = document.createElement('li');
-      li.textContent = server;
+      servers.forEach(server => {
+        const li = document.createElement('li');
+        li.textContent = server;
 
-      li.addEventListener('click', () => {
-        li.classList.toggle('selected');
-        if (selectedServers.has(server)) {
-          selectedServers.delete(server);
-        } else {
-          selectedServers.add(server);
-        }
-        updateToggleSelectButton();
+        li.addEventListener('click', () => {
+          li.classList.toggle('selected');
+          if (selectedServers.has(server)) {
+            selectedServers.delete(server);
+          } else {
+            selectedServers.add(server);
+          }
+          updateToggleSelectButton();
+        });
+
+        list.appendChild(li);
       });
+    }
 
-      list.appendChild(li);
-    });
+    updateToggleSelectButton();
   }
 
-  updateToggleSelectButton();
-}
-
   // Select/Deselect all toggle button
-  const toggleSelectBtn = document.getElementById('toggle-select-all'); // [NEW: safety check]
-  if (toggleSelectBtn) { // [NEW: safety check]
+  const toggleSelectBtn = document.getElementById('toggle-select-all');
+  if (toggleSelectBtn) {
     toggleSelectBtn.addEventListener('click', () => {
       const listItems = document.querySelectorAll('#server-list li');
       const selectAll = toggleSelectBtn.textContent === "Вибрати всі";
@@ -160,22 +156,21 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateToggleSelectButton() {
     const listItems = document.querySelectorAll('#server-list li');
     const allSelected = [...listItems].every(li => li.classList.contains('selected'));
-    if (toggleSelectBtn) { // [NEW: safety check]
+    if (toggleSelectBtn) {
       toggleSelectBtn.textContent = allSelected ? "Скасувати вибір" : "Вибрати всі";
     }
   }
 
-  // Clear button
-  const output = document.getElementById("command-output"); // [NEW: safety check]
-  const clearBtn = document.getElementById("clear-btn");     // [NEW: safety check]
-  if (clearBtn && output) { // [NEW: safety check]
+  //-----------------------Clear output button---------------------------//
+  const output = document.getElementById("command-output");
+  const clearBtn = document.getElementById("clear-btn");
+  if (clearBtn && output) {
     clearBtn.addEventListener("click", () => {
       output.value = "";
     });
   }
 
-  //-----------------------Checking active class---------------------------//
-
+  //-----------------------Navigation active class---------------------------//
   const currentPath = window.location.pathname.replace(/\/$/, "");
 
   document.querySelectorAll('.main-nav .nav-item').forEach(item => {
@@ -191,7 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   //------------------------------Hamburger menu---------------------------------//
-
   const menuToggle = document.querySelector('.menu-toggle');
   const mainNav = document.querySelector('.main-nav');
 
