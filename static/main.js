@@ -50,6 +50,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById('send-btn');
     const output = document.getElementById('command-output');
 
+    // Detect if the selected command is complex
+    let isComplex = false;
+    const commandListItems = document.querySelectorAll('#command-list .nested-list li');
+    commandListItems.forEach(item => {
+      if (item.classList.contains('selected') || item === document.activeElement) {
+        if (item.dataset.complex === 'true') isComplex = true;
+      }
+      // fallback: check if commandInput matches this script
+      if (item.dataset && item.dataset.script && command.includes(item.dataset.script) && item.dataset.complex === 'true') {
+        isComplex = true;
+      }
+    });
+
     if (selectedServers.size === 0 || !command) {
       alert("Оберіть хоча б один сервер та введіть команду.");
       return;
@@ -68,6 +81,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
 
         const { command_id } = await res.json();
+
+        if (isComplex) {
+          output.value += `=== ${serverId} ===\nКоманду надіслано успішно (комплексна команда)\n\n----------------------\n`;
+          continue;
+        }
 
         let tries = 30;
         while (tries-- > 0) {

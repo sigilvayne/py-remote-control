@@ -71,15 +71,15 @@
                 <li>
                     <span class="folder-label folder"><span class="icon update-icon"></span>Оновлення</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="updates/search-updates.ps1">Пошук оновлень</li>
-                        <li data-script="updates/tail-logs.ps1">Прочитати логи оновлення</li>
-                        <li data-script="updates/run-update.ps1">Інсталювати оновлення</li>
+                        <li data-script="update/search-updates.ps1" data-complex="true">Пошук оновлень</li>
+                        <li data-script="update/tail-logs.ps1">Прочитати логи оновлення</li>
+                        <li data-script="update/run-update.ps1" data-complex="true">Інсталювати оновлення</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon test-icon"></span>Тестування</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="send-script.ps1">send-script.ps1</li>
+                        <li data-script="testing/send-script.ps1">send-script.ps1</li>
                     </ul>
                 </li>
                 <li>
@@ -87,7 +87,7 @@
                     <ul class="nested-list collapsed">
                         <li data-script="users/rdp-fail.ps1">Активні користувачі</li>
                         <li data-script="users/last-login.ps1">Останній вхід користувачів</li>
-                        <li data-script="users/rdp-fail.ps1">Завершити відключені сеанси</li>
+                        <li data-script="users/user-kick-inactive.ps1">Завершити відключені сеанси</li>
                         <li data-script="users/rdp-fail.ps1">Невдалі входи по RDP</li>
                     </ul>
                 </li>

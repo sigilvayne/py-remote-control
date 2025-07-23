@@ -23,5 +23,5 @@ function List-FolderContents {
     }
 }
 
-Write-Output "Вміст $backupPath:"
+Write-Output "Вміст ${backupPath}:"
 List-FolderContents -Path $backupPath 

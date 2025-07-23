@@ -1,4 +1,4 @@
-$logPath = "C:\Script\log"
+$logPath = "C:\Script\logs"
 $logFile = "$logPath\update.txt"
 
 if (-not (Test-Path $logPath)) {
