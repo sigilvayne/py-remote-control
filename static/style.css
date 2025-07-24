@@ -560,6 +560,15 @@ ul.nested-list li:hover {
     text-align: center;
 }
 
+/*--------------------------------Monitoring page------------------------------*/
+
+.monitoring-main {
+    min-height: calc(100vh - 3.5rem);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /*------------------------------------------*/
 
 @media (max-width: 768px) {

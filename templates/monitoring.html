@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Зареєстровані сервери</title>
-    <link rel="stylesheet" href="/static/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моніторинг</title>
     <link rel="icon" type="image/png" href="/static/images/icon.png">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
+<body>
 
-<body class="server-body">
-
-   <header class="body-header">
+    <header class="headers">
 
         <div class="header-left">
             <img src="/static/images/icon.png" alt="Лого" class="header-icon">
@@ -29,7 +28,7 @@
         <div class="user-info-mobile">
             <div class="flex-username">
             <img src="/static/images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" class="user-icon" />
-            <div class="username">{{ username }}</div>
+            <span class="username">{{ username }}</span>
             </div>
             <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
         </div>
@@ -42,50 +41,16 @@
             </div>
             <button class="logout-btn" onclick="window.location.href='/logout'">Вийти</button>
         </div>
-
     </header>
-  
-   <main class="server-container">
-  <h1 class="server-h1">Список серверів</h1>
 
-  {% if servers|length == 0 %}
-    <div class="empty-text">
+<main class="monitoring-main">
+<div class="empty-text">
       <div class="empty-content">
         <img src="/static/images/data-not-found.svg" alt="Порожній список" class="empty-icon">
         <span>Тут поки що пусто</span>
       </div>
     </div>
-  {% else %}
-    <div class="server-grid">
-      {% for s in servers %}
-        <div class="server-card">
-          <div class="server-card-div">
-            <span class="card-label">ID:</span>
-            <span class="card-value">{{ s.id }}</span>
-          </div>
-          <div class="server-card-div">
-            <span class="card-label">Server ID:</span>
-            <span class="card-value">{{ s.server_id }}</span>
-          </div>
-          <div class="server-card-div">
-            <span class="card-label">Control URL:</span>
-            <span class="card-value">{{ s.control_url }}</span>
-          </div>
-          <div class="server-card-div">
-            <span class="card-label">Дата реєстрації:</span>
-            <span class="card-value">{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
-          </div>
-          <div class="server-card-div">
-            <form method="POST" action="{{ url_for('delete_server', server_id=s.id) }}" onsubmit="return confirm('Ви впевнені, що хочете видалити цей сервер?');">
-              <button type="submit" class="delete-btn">Видалити</button>
-            </form>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
 </main>
-
-<script src="/static/navigation.js"></script>
+    <script src="/static/navigation.js"></script>
 </body>
 </html>

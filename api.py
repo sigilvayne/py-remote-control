@@ -79,6 +79,11 @@ def login_required(f):
 def index():
     return render_template("connection.html", username=session['username'])
 
+@app.route('/monitoring')
+@login_required
+def monitoring():
+    return render_template("monitoring.html", username=session['username'])
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
