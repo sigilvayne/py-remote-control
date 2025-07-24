@@ -43,6 +43,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+   // ------------------Add tooltips from data-desc------------------ //
+  document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
+  const desc = li.getAttribute('data-desc');
+  if (desc) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip-text';
+    tooltip.textContent = desc;
+    li.style.position = 'relative';
+    li.appendChild(tooltip);
+  }
+});
+
   //-----------------------Send command---------------------------//
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
