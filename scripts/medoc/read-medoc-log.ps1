@@ -1,12 +1,17 @@
 ﻿# read-version-from-logs.ps1
-$logDir = 'C:\ProgramData\Medoc\Medoc\LOG'
+$logDirs = @('C:\ProgramData\Medoc\Medoc\LOG', 'C:\ProgramData\Medoc\MedocSRV\LOG')
 $pattern = 'update_*.log'
 
-# Get all matching log files sorted by LastWriteTime descending
-$logFiles = Get-ChildItem -Path $logDir -Filter $pattern | Sort-Object LastWriteTime -Descending
+$logFiles = @()
+foreach ($dir in $logDirs) {
+    if (Test-Path $dir) {
+        $logFiles += Get-ChildItem -Path $dir -Filter $pattern
+    }
+}
+$logFiles = $logFiles | Sort-Object LastWriteTime -Descending
 
 if (-not $logFiles) {
-    Write-Error "No log files found matching pattern '$pattern' in '$logDir'"
+    Write-Error "No log files found matching pattern '$pattern' in any Medoc log directory."
     exit 1
 }
 
