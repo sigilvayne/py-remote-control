@@ -51,67 +51,67 @@
                 <li>
                     <span class="folder-label folder"><span class="icon cmd-icon"></span>Стандартні</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="basic/sys-info.ps1" data-desc="Показує основну інформацію про систему">Інформація про систему</li>
-                        <li data-script="basic/process-list.ps1" data-desc="Показує основну">Список процесів</li>
-                        <li data-script="basic/check-backup.ps1" data-desc="Показує ">Перевірити бекапи</li>
-                        <li data-desc="Показує основну інформацію про систему">ipconfig</li>
-                        <li data-desc="Показує основну інформацію про систему">hostname</li>
-                        <li data-desc="Показує основну інформацію про систему">shutdown /r /t 0</li>
+                        <li data-script="basic/sys-info.ps1" data-desc="Виводить основну інформацію про операційну систему, версію Windows, ім'я комп'ютера, користувача та апаратне забезпечення.">Інформація про систему</li>
+                        <li data-script="basic/process-list.ps1" data-desc="Показує список усіх запущених процесів на сервері.">Список процесів</li>
+                        <li data-script="basic/check-backup.ps1" data-desc="Перевіряє наявність папки 'backup' на диску C: та виводить усі файли і підпапки з датами створення.">Перевірити бекапи</li>
+                        <li data-desc="Виводить інформацію про мережеві інтерфейси та їх IP-адреси.">ipconfig</li>
+                        <li data-desc="Виводить ім'я поточного комп'ютера (hostname).">hostname</li>
+                        <li data-desc="Перезавантажує комп'ютер негайно.">shutdown /r /t 0</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon hive-icon"></span>Medoс</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="medoc/download-medoc-update.ps1" data-desc="Показує основну інформацію про систему" data-dynamic="medoc-download">Завантажити оновлення</li>
-                        <li data-script="medoc/medoc-update.exe" data-desc="Показує основну інформацію про систему">Запустити оновлення</li>
-                        <li data-script="medoc/read-medoc-log.ps1" data-desc="Показує основну інформацію про систему">Перевірити версію</li>
+                        <li data-script="medoc/download-medoc-update.ps1" data-desc="Завантажує останнє оновлення для програми M.E.Doc." data-dynamic="medoc-download">Завантажити оновлення</li>
+                        <li data-script="medoc/medoc-update.exe" data-desc="Запускає процес оновлення програми M.E.Doc.">Запустити оновлення</li>
+                        <li data-script="medoc/read-medoc-log.ps1" data-desc="Перевіряє та виводить поточну версію програми M.E.Doc із журналу.">Перевірити версію</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon update-icon"></span>Оновлення</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="update/search-updates.ps1" data-desc="Показує основну інформацію про систему" data-complex="true">Пошук оновлень</li>
-                        <li data-script="update/tail-logs.ps1" data-desc="Показує основну інформацію про систему">Прочитати логи оновлення</li>
-                        <li data-script="update/run-update.ps1" data-desc="Показує основну інформацію про систему" data-complex="true">Інсталювати оновлення</li>
+                        <li data-script="update/search-updates.ps1" data-desc="Шукає доступні оновлення Windows та антивірусу." data-complex="true">Пошук оновлень</li>
+                        <li data-script="update/tail-logs.ps1" data-desc="Виводить останні записи з журналу оновлень.">Прочитати логи оновлення</li>
+                        <li data-script="update/run-update.ps1" data-desc="Встановлює всі доступні оновлення Windows та антивірусу." data-complex="true">Інсталювати оновлення</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon test-icon"></span>Тестування</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="testing/send-script.ps1" data-desc="Показує основну інформацію про систему">send-script.ps1</li>
+                        <li data-script="testing/send-script.ps1" data-desc="Виконує тестовий скрипт для перевірки взаємодії з агентом.">send-script.ps1</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon group-icon"></span>Користувачі</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="users/rdp-fail.ps1" data-desc="Показує основну інформацію про систему">Активні користувачі</li>
-                        <li data-script="users/last-login.ps1" data-desc="Показує основну інформацію про систему">Останній вхід користувачів</li>
-                        <li data-script="users/user-kick-inactive.ps1" data-desc="Показує основну інформацію про систему">Завершити відключені сеанси</li>
-                        <li data-script="users/rdp-fail.ps1" data-desc="Показує основну інформацію про систему">Невдалі входи по RDP</li>
+                        <li data-script="users/rdp-fail.ps1" data-desc="Показує список користувачів, які зараз підключені через RDP.">Активні користувачі</li>
+                        <li data-script="users/last-login.ps1" data-desc="Виводить інформацію про останній вхід кожного користувача на сервер.">Останній вхід користувачів</li>
+                        <li data-script="users/user-kick-inactive.ps1" data-desc="Завершує всі відключені (disconnected) RDP-сеанси користувачів.">Завершити відключені сеанси</li>
+                        <li data-script="users/rdp-fail.ps1" data-desc="Показує список невдалих спроб входу по RDP.">Невдалі входи по RDP</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon disk-icon"></span>Диск</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="disk/disk-space.ps1" data-desc="Показує основну інформацію про систему">Дисковий простір</li>
-                        <li data-script="disk/disk-check.ps1" data-desc="Показує основну інформацію про систему">Аналіз простору для очистки</li>
-                        <li data-script="disk/disk-cleanup.ps1" data-desc="Показує основну інформацію про систему">Очистка диску</li>
+                        <li data-script="disk/disk-space.ps1" data-desc="Виводить інформацію про використання дискового простору на всіх дисках.">Дисковий простір</li>
+                        <li data-script="disk/disk-check.ps1" data-desc="Аналізує простір на диску та показує, які файли займають найбільше місця.">Аналіз простору для очистки</li>
+                        <li data-script="disk/disk-cleanup.ps1" data-desc="Виконує очистку тимчасових та непотрібних файлів на диску.">Очистка диску</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon handy-icon"></span>DISM</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="dism/dism-analyze.ps1" data-desc="Показує основну інформацію про систему">Аналіз DISM</li>
-                        <li data-script="dism/dism-cleanup.ps1" data-desc="Показує основну інформацію про систему">Очистка DISM</li>
-                        <li data-script="dism/dism-health.ps1" data-desc="Показує основну інформацію про систему">Стан системи</li>
+                        <li data-script="dism/dism-analyze.ps1" data-desc="Аналізує цілісність системних файлів Windows за допомогою DISM.">Аналіз DISM</li>
+                        <li data-script="dism/dism-cleanup.ps1" data-desc="Виконує очистку компонентів Windows за допомогою DISM.">Очистка DISM</li>
+                        <li data-script="dism/dism-health.ps1" data-desc="Перевіряє та відновлює стан системних файлів Windows за допомогою DISM.">Стан системи</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon guard-icon"></span>RDP Guard</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="rdpguard/rdpguard-unlock.ps1" data-desc="Показує основну інформацію про систему">Розблокувати усі IP</li>
-                        <li data-script="rdpguard/rdpguard-check-license.ps1" data-desc="Показує основну інформацію про систему">Перевірити ліцензію</li>
-                        <li data-script="rdpguard/rdpguard-restore-license.ps1" data-desc="Показує основну інформацію про систему">Оновити ліцензію</li>
+                        <li data-script="rdpguard/rdpguard-unlock.ps1" data-desc="Розблоковує всі IP-адреси, заблоковані RDP Guard.">Розблокувати усі IP</li>
+                        <li data-script="rdpguard/rdpguard-check-license.ps1" data-desc="Перевіряє стан ліцензії RDP Guard.">Перевірити ліцензію</li>
+                        <li data-script="rdpguard/rdpguard-restore-license.ps1" data-desc="Оновлює або відновлює ліцензію RDP Guard.">Оновити ліцензію</li>
                     </ul>
                 </li>
             </ul>
