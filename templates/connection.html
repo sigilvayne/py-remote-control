@@ -44,10 +44,24 @@
 
     </header>
 
-    <main class="content">
+<main class="content">
+
+    <div class="left-section">
+
+            <div class="top-panel">
+                <h2 class="h2-margin">Команда</h2>
+                <textarea id="command-input" rows="3" placeholder="Оберіть команду або введіть свою" class="command-input"></textarea>
+                <div class="flex-buttons">
+                <button id="send-btn" onclick="sendCommand()" style="font-weight: bold;">Надіслати</button>
+                <button id="clear-btn"><span class="icon clear-icon"></span></button>
+                <button id="cycle-btn"><span class="icon cycle-icon"></span></button>
+                </div>
+            </div>
+
+    <div class="command-server-panel">
         <div class="left-panel">
-            <h2 class="h2-margin">Команди</h2>
             <ul id="command-list">
+                <h2 class="h2-margin">Команди</h2>
                 <li>
                     <span class="folder-label folder"><span class="icon cmd-icon"></span>Стандартні</span>
                     <ul class="nested-list collapsed">
@@ -129,17 +143,12 @@
             </div>
             <button id="toggle-select-all" class="select-btn">Вибрати всі</button>
         </div>
+    </div>
 
-        <div class="main-panel">
-            <div class="command-editor">
-                <h2 class="h2-margin">Команда</h2>
-                <textarea id="command-input" rows="3" placeholder="Оберіть команду або введіть свою" class="command-input"></textarea>
-                <div class="flex-buttons">
-                <button id="send-btn" onclick="sendCommand()" style="font-weight: bold;">Надіслати</button>
-                <button id="clear-btn"><span class="icon clear-icon"></span></button>
-                <button id="cycle-btn"><span class="icon cycle-icon"></span></button>
-                </div>
-            </div>
+</div>
+
+        <div class="right-section">
+            <h2 class="h2-margin">Вивід команди</h2>
             <div id="output-panels-container" class="output-panels-container"></div>
         </div>
     </main>

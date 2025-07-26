@@ -27,27 +27,37 @@ body {
 /*---------------- Main content ------------------------------*/
 
 .content {
-    max-width: 100%;
     padding-inline: 1rem;
     box-sizing: border-box;
     display: grid;
-    grid-template-columns: 25% 25% 50%;
+    grid-template-columns:50% 50%;
     height: calc(100vh - 3.5rem);
 }
 
 .left-panel{
-    max-height:100vh; 
-    border-right:2px solid gainsboro;
+    max-height:70vh; 
     overflow-y: auto;
 }
 
-.right-panel{
-    padding-inline:1rem;
-    border-right:2px solid gainsboro;
-   
+.left-panel,
+.right-panel {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1rem;
 }
 
-.main-panel{
+.left-section{
+    border-right:2px solid #dee2e6;
+    padding-right: 1rem;
+}
+
+.command-server-panel{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2rem;
+}
+
+.right-section{
     display: flex;
     flex-direction: column;
     padding-left:1rem;
@@ -56,8 +66,8 @@ body {
 
 /* Dynamic Output Panels */
 .output-panels-container {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.6rem;
     overflow-y: auto;
 }
@@ -424,10 +434,7 @@ ul {
 }
 
 li {
-    padding: 6px 8px;
     font-size: 13px;
-    background-color: #f0f0f0;
-    margin-bottom: 4px;
     transition: background-color 0.2s, color 0.2s;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -449,6 +456,13 @@ ul.nested-list li:hover {
   margin-bottom: .4rem;
 }
 
+#command-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
 #command-list li {
   position: relative;
 }
@@ -456,7 +470,7 @@ ul.nested-list li:hover {
 /* Tooltip box */
 #command-list li .tooltip-text {
   display: none;
-  max-width: 260px;
+    max-width: 20rem;
   background-color: #007acc;
   color: white;
   font-size: 12px;
@@ -497,7 +511,7 @@ ul.nested-list li:hover {
     display: flex;
     align-items: center;
     gap:.5rem;
-    padding: 6px 8px;
+    padding:.5rem;
     font-weight: bold;
     font-size: 13px;
     text-transform: uppercase;
@@ -505,9 +519,8 @@ ul.nested-list li:hover {
     color: #0040a1;
     cursor: pointer;
     user-select: none;
+    border: 1px solid #d0e0f0;
     border-left: 4px solid #007acc;
-    border-top: 1px solid #d0e0f0;
-    border-bottom: 1px solid #d0e0f0;
 }
 
 .folder-label:hover {
@@ -516,10 +529,17 @@ ul.nested-list li:hover {
 
 /* ----------- Вкладені списки ----------- */
 .nested-list {
-    padding-left: 12px;
-    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    padding-left:1rem;
+    margin-top: .75rem;
     border-left: 2px dashed #ccc;
     transition: max-height 0.2s ease-out;
+}
+
+.nested-list > li {
+    padding: 0.5rem;
 }
 
 .nested-list.collapsed {
@@ -710,6 +730,20 @@ ul.nested-list li:hover {
         grid-template-columns: 1fr;
         height:auto;
     }
+
+    .command-server-panel{
+        grid-template-columns: 1fr;
+    }
+
+    .left-section{
+    border:none;
+    padding: 0;
+}
+
+.right-section h2{
+    text-align: center;
+    padding-left: 0;
+}
 
     .left-panel{
         overscroll-behavior: contain;
