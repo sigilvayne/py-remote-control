@@ -430,7 +430,6 @@ ul {
 }
 
 li {
-    padding: .5rem;
     font-size: 13px;
     transition: background-color 0.2s, color 0.2s;
     white-space: nowrap;
@@ -444,9 +443,10 @@ ul.nested-list li:hover {
 }
 
 #server-list li.selected {
-    background-color: #e6f0ff;
+    background-color: #339edc;
     color: #fff;
     font-weight: bold;
+    padding: .5rem;
 }
 
 #command-list {
