@@ -147,31 +147,70 @@ document.addEventListener("DOMContentLoaded", () => {
         const { command_id } = await res.json();
 
         if (isComplex) {
-          updateOutputPanel(panelId, 'Команду надіслано успішно (комплексна команда)', 'success');
-          continue;
-        }
+          // For complex commands, poll for progress updates
+          let tries = 300; // 5 minutes max
+          let lastOutput = "";
+          
+          while (tries-- > 0) {
+            const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
+            if (!resultRes.ok) {
+              updateOutputPanel(panelId, `Помилка при отриманні результату: ${resultRes.statusText}`, 'error');
+              break;
+            }
 
-        let tries = 30;
-        while (tries-- > 0) {
-          const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
-          if (!resultRes.ok) {
-            updateOutputPanel(panelId, `Помилка при отриманні результату: ${resultRes.statusText}`, 'error');
-            break;
-          }
-
-          const data = await resultRes.json();
-          if (data.status !== "no_result") {
-            const output = data.stdout || JSON.stringify(data);
-            updateOutputPanel(panelId, output, 'success');
-            break;
+            const data = await resultRes.json();
+            
+            if (data.status === "progress") {
+              // Update with progress
+              if (data.output && data.output !== lastOutput) {
+                updateOutputPanel(panelId, data.output, 'running');
+                lastOutput = data.output;
+              }
+              // Continue polling
+              await new Promise(r => setTimeout(r, 2000)); // Poll every 2 seconds
+            } else if (data.status === "complete" || data.stdout) {
+              // Final result received
+              const output = data.stdout || data.output || "Команда завершена";
+              updateOutputPanel(panelId, output, 'success');
+              break;
+            } else if (data.status === "no_result") {
+              // Still waiting
+              updateOutputPanel(panelId, "Очікування запуску команди...", 'running');
+              await new Promise(r => setTimeout(r, 2000));
+            } else {
+              // Unexpected response
+              updateOutputPanel(panelId, `Неочікувана відповідь: ${JSON.stringify(data)}`, 'error');
+              break;
+            }
           }
           
-          updateOutputPanel(panelId, `Очікування... (${30 - tries}/30)`, 'running');
-          await new Promise(r => setTimeout(r, 1000));
-        }
-        
-        if (tries < 0) {
-          updateOutputPanel(panelId, 'Час очікування вичерпано', 'error');
+          if (tries < 0) {
+            updateOutputPanel(panelId, 'Час очікування вичерпано (5 хвилин)', 'error');
+          }
+        } else {
+          // For simple commands, use the old polling logic
+          let tries = 30;
+          while (tries-- > 0) {
+            const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
+            if (!resultRes.ok) {
+              updateOutputPanel(panelId, `Помилка при отриманні результату: ${resultRes.statusText}`, 'error');
+              break;
+            }
+
+            const data = await resultRes.json();
+            if (data.status !== "no_result") {
+              const output = data.stdout || JSON.stringify(data);
+              updateOutputPanel(panelId, output, 'success');
+              break;
+            }
+            
+            updateOutputPanel(panelId, `Очікування... (${30 - tries}/30)`, 'running');
+            await new Promise(r => setTimeout(r, 1000));
+          }
+          
+          if (tries < 0) {
+            updateOutputPanel(panelId, 'Час очікування вичерпано', 'error');
+          }
         }
       }
     } catch (error) {
