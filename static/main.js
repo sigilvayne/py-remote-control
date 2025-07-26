@@ -110,7 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
     const command = commandInput.value.trim();
-    const sendBtn = document.getElementById('send-btn');
 
     // Detect if the selected command is complex
     let isComplex = false;
@@ -129,9 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Оберіть хоча б один сервер та введіть команду.");
       return;
     }
-
-    sendBtn.disabled = true;
-    sendBtn.textContent = "Надсилання...";
 
     try {
       for (const serverId of selectedServers) {
@@ -180,9 +176,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       alert(error.message);
-    } finally {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Надіслати";
     }
   }
 
