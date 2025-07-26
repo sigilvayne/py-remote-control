@@ -53,6 +53,110 @@ body {
     padding-left:1rem;
 }
 
+/* Dynamic Output Panels */
+.output-panels-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.output-panel {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    min-width: 300px;
+    flex: 1;
+    min-height: 200px;
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.output-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.output-panel-title {
+    font-weight: bold;
+    color: #495057;
+    font-size: 14px;
+}
+
+.output-panel-close {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.output-panel-close:hover {
+    background-color: #e9ecef;
+    color: #dc3545;
+}
+
+.output-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.output-panel-status {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.output-panel-status.running {
+    color: #007bff;
+}
+
+.output-panel-status.success {
+    color: #28a745;
+}
+
+.output-panel-status.error {
+    color: #dc3545;
+}
+
+/* Responsive layout for panels */
+@media (max-width: 1200px) {
+    .output-panel {
+        min-width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .output-panels-container {
+        flex-direction: column;
+    }
+    
+    .output-panel {
+        min-width: 100%;
+        max-height: 250px;
+    }
+}
+
 /* ----------- Хедер ----------- */
 
 header {

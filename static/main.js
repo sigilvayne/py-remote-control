@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const selectedServers = new Set();
+  let panelCounter = 0;
 
   //-----------------------Folder toggling---------------------------//
   document.querySelectorAll('.folder-label').forEach(label => {
@@ -43,24 +44,73 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-   // ------------------Add tooltips from data-desc------------------ //
-  document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
-  const desc = li.getAttribute('data-desc');
-  if (desc) {
-    const tooltip = document.createElement('div');
-    tooltip.className = 'tooltip-text';
-    tooltip.textContent = desc;
-    li.style.position = 'relative';
-    li.appendChild(tooltip);
+  //-----------------------Dynamic Output Panels Management---------------------------//
+  
+  function createOutputPanel(serverId, command) {
+    const container = document.getElementById('output-panels-container');
+    const panelId = `panel-${++panelCounter}`;
+    
+    const panel = document.createElement('div');
+    panel.className = 'output-panel';
+    panel.id = panelId;
+    
+    const header = document.createElement('div');
+    header.className = 'output-panel-header';
+    
+    const title = document.createElement('div');
+    title.className = 'output-panel-title';
+    title.textContent = `${serverId} - ${command.substring(0, 30)}${command.length > 30 ? '...' : ''}`;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'output-panel-close';
+    closeBtn.innerHTML = '×';
+    closeBtn.onclick = () => removeOutputPanel(panelId);
+    
+    const content = document.createElement('div');
+    content.className = 'output-panel-content';
+    content.textContent = 'Очікування відповіді...';
+    
+    const status = document.createElement('div');
+    status.className = 'output-panel-status running';
+    status.textContent = 'Виконується...';
+    
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    panel.appendChild(header);
+    panel.appendChild(content);
+    panel.appendChild(status);
+    container.appendChild(panel);
+    
+    return { panelId, content, status };
   }
-});
+  
+  function updateOutputPanel(panelId, content, status = 'success') {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    
+    const contentEl = panel.querySelector('.output-panel-content');
+    const statusEl = panel.querySelector('.output-panel-status');
+    
+    if (contentEl) contentEl.textContent = content;
+    if (statusEl) {
+      statusEl.textContent = status === 'success' ? 'Завершено' : 
+                           status === 'error' ? 'Помилка' : 'Виконується...';
+      statusEl.className = `output-panel-status ${status}`;
+    }
+  }
+  
+  function removeOutputPanel(panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel) {
+      panel.remove();
+    }
+  }
 
   //-----------------------Send command---------------------------//
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
     const command = commandInput.value.trim();
     const sendBtn = document.getElementById('send-btn');
-    const output = document.getElementById('command-output');
 
     // Detect if the selected command is complex
     let isComplex = false;
@@ -85,31 +135,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       for (const serverId of selectedServers) {
+        const { panelId, content, status } = createOutputPanel(serverId, command);
+        
         const res = await fetch(`/set_command/${serverId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ command })
         });
-        if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
+        
+        if (!res.ok) {
+          updateOutputPanel(panelId, `Помилка при надсиланні команди: ${res.statusText}`, 'error');
+          continue;
+        }
 
         const { command_id } = await res.json();
 
         if (isComplex) {
-          output.value += `=== ${serverId} ===\nКоманду надіслано успішно (комплексна команда)\n\n----------------------\n`;
+          updateOutputPanel(panelId, 'Команду надіслано успішно (комплексна команда)', 'success');
           continue;
         }
 
         let tries = 30;
         while (tries-- > 0) {
           const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
-          if (!resultRes.ok) throw new Error(`Помилка при отриманні результату з сервера ${serverId}`);
+          if (!resultRes.ok) {
+            updateOutputPanel(panelId, `Помилка при отриманні результату: ${resultRes.statusText}`, 'error');
+            break;
+          }
 
           const data = await resultRes.json();
           if (data.status !== "no_result") {
-            output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
+            const output = data.stdout || JSON.stringify(data);
+            updateOutputPanel(panelId, output, 'success');
             break;
           }
+          
+          updateOutputPanel(panelId, `Очікування... (${30 - tries}/30)`, 'running');
           await new Promise(r => setTimeout(r, 1000));
+        }
+        
+        if (tries < 0) {
+          updateOutputPanel(panelId, 'Час очікування вичерпано', 'error');
         }
       }
     } catch (error) {
@@ -192,11 +258,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   //-----------------------Clear output button---------------------------//
-  const output = document.getElementById("command-output");
   const clearBtn = document.getElementById("clear-btn");
-  if (clearBtn && output) {
+  if (clearBtn) {
     clearBtn.addEventListener("click", () => {
-      output.value = "";
+      const container = document.getElementById('output-panels-container');
+      container.innerHTML = '';
+      panelCounter = 0;
     });
   }
 
