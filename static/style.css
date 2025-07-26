@@ -442,12 +442,12 @@ ul.nested-list li:hover {
   cursor: pointer;
 }
 
-#server-list li{
+.server-item{
     padding: 0.5rem;
     background-color: #e9f3fb;
 }
 
-#server-list li.selected {
+.server-item.selected {
     background-color: #339edc;
     color: #fff;
     font-weight: bold;
