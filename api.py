@@ -60,8 +60,9 @@ users = {
     os.getenv('ADMIN_USERNAME'): os.getenv('ADMIN_PASSWORD')
 }
 
-commands = {}  # server_id -> {"id": ..., "command": ...}
-results = {}   # server_id -> {"id": ..., "stdout": ..., ...}
+commands = {}
+results = {}
+progress = {}  # Store incremental progress updates
 
 def login_required(f):
     from functools import wraps
@@ -120,18 +121,52 @@ def set_command(server_id):
         "id": command_id,
         "command": command
     }
+    
+    # Only create progress tracking for complex commands
+    is_complex = any(script in command for script in [
+        "search-updates.ps1", "run-update.ps1", "disk-cleanup.ps1", 
+        "dism-cleanup.ps1", "dism-analyze.ps1", "dism-health.ps1"
+    ])
+    
+    if is_complex:
+        progress[command_id] = {
+            "server_id": server_id,
+            "command": command,
+            "output": "",
+            "status": "running",
+            "last_update": datetime.utcnow()
+        }
+    
     return jsonify({"status": "command_set", "command_id": command_id})
 
 @app.route('/get_result/<server_id>', methods=['GET'])
 @login_required
 def get_result(server_id):
     expected_id = request.args.get("command_id")
+    
+    print(f"Get result request: server_id={server_id}, command_id={expected_id}")
+    
+    # Check for final result first
     res = results.get(server_id)
     if res and res.get("id") == expected_id:
         results.pop(server_id)
+        print(f"Returning final result: {res}")
         return jsonify(res)
-    else:
-        return jsonify({"status": "no_result"})
+    
+    # Check for progress updates (only for complex commands)
+    prog = progress.get(expected_id)
+    if prog and prog["server_id"] == server_id:
+        response_data = {
+            "status": "progress",
+            "output": prog["output"],
+            "status": prog["status"],
+            "last_update": prog["last_update"].isoformat()
+        }
+        print(f"Returning progress: {response_data}")
+        return jsonify(response_data)
+    
+    print(f"No result found, returning no_result")
+    return jsonify({"status": "no_result"})
 
 @app.route('/get_medoc_version', methods=['GET'])
 def get_medoc_version():
@@ -163,6 +198,47 @@ def agent_post_result(server_id):
     result = request.json or {}
     results[server_id] = result
     return jsonify({"status": "result_received"})
+
+@app.route('/agent_post_progress/<server_id>', methods=['POST'])
+@agent_auth_required
+def agent_post_progress(server_id):
+    data = request.json or {}
+    command_id = data.get("id")
+    output_chunk = data.get("output", "")
+    is_complete = data.get("complete", False)
+    
+    # Debug logging
+    print(f"Progress update received: server_id={server_id}, command_id={command_id}, output_chunk='{output_chunk}', is_complete={is_complete}")
+    
+    if not command_id or command_id not in progress:
+        print(f"Invalid command_id: {command_id}, available: {list(progress.keys())}")
+        return jsonify({"status": "error", "message": "Invalid command_id"}), 400
+    
+    prog = progress[command_id]
+    if prog["server_id"] != server_id:
+        return jsonify({"status": "error", "message": "Server ID mismatch"}), 400
+    
+    # Append new output
+    if output_chunk:
+        prog["output"] += output_chunk
+        print(f"Updated progress output: {prog['output']}")
+    
+    prog["last_update"] = datetime.utcnow()
+    
+    if is_complete:
+        prog["status"] = "complete"
+        # Move to final results
+        results[server_id] = {
+            "id": command_id,
+            "stdout": prog["output"],
+            "stderr": data.get("stderr", ""),
+            "code": data.get("code", 0)
+        }
+        # Clean up progress
+        progress.pop(command_id, None)
+        print(f"Command completed, moved to results: {results[server_id]}")
+    
+    return jsonify({"status": "progress_received"})
 
 # --- Реєстрація серверів  ---
 @app.route('/register_server', methods=['POST'])
