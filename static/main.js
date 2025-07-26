@@ -44,6 +44,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+    // ------------------Add tooltips from data-desc------------------ //
+  document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
+  const desc = li.getAttribute('data-desc');
+  if (desc) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip-text';
+    tooltip.textContent = desc;
+    li.style.position = 'relative';
+    li.appendChild(tooltip);
+  }
+});
+
   //-----------------------Dynamic Output Panels Management---------------------------//
   
   function createOutputPanel(serverId, command) {
@@ -63,8 +75,13 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const closeBtn = document.createElement('button');
     closeBtn.className = 'output-panel-close';
-    closeBtn.innerHTML = '×';
+    closeBtn.setAttribute('aria-label', 'Close');
     closeBtn.onclick = () => removeOutputPanel(panelId);
+
+    closeBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="currentColor">
+        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+      </svg>`;
     
     const content = document.createElement('div');
     content.className = 'output-panel-content';

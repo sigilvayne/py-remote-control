@@ -51,60 +51,61 @@ body {
     display: flex;
     flex-direction: column;
     padding-left:1rem;
+    max-height: calc(100vh - 3.5rem);
 }
 
 /* Dynamic Output Panels */
 .output-panels-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-    max-height: calc(100vh - 200px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
     overflow-y: auto;
 }
+
+.output-panels-container > *:last-child {
+    margin-bottom: 1rem;
+  }
 
 .output-panel {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 15px;
-    min-width: 300px;
+    padding:1rem;
     flex: 1;
-    min-height: 200px;
-    max-height: 300px;
     display: flex;
+    gap:.5rem;
     flex-direction: column;
 }
 
 .output-panel-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #dee2e6;
+    gap: 1rem;
 }
 
 .output-panel-title {
     font-weight: bold;
     color: #495057;
     font-size: 14px;
+    flex-grow: 1;
+    flex-shrink: 1; 
+    flex-basis: 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .output-panel-close {
-    background: none;
+    width: 1.5rem;
+    height: 1.5rem;
     border: none;
-    color: #6c757d;
     cursor: pointer;
-    font-size: 16px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
+    padding: 0;
+    color:#000 ;
+    background-color:transparent
 }
 
 .output-panel-close:hover {
-    background-color: #e9ecef;
-    color: #dc3545;
+    background-color: #dc3545;
+    color: white;
 }
 
 .output-panel-content {
@@ -117,44 +118,32 @@ body {
     word-wrap: break-word;
     background: #fff;
     border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 10px;
+    padding: 0.6rem;
+    min-height: 6.25rem;
 }
 
-.output-panel-status {
-    margin-top: 8px;
-    font-size: 11px;
-    color: #6c757d;
+.output-panel-status {   
+  font-size: 11px;
+  font-weight: 600;
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: .5rem 0;
 }
 
 .output-panel-status.running {
-    color: #007bff;
+  background: #e7f1ff;
+  color: #007bff;
 }
 
 .output-panel-status.success {
-    color: #28a745;
+  background: #d4edda;
+  color: #28a745;
 }
 
 .output-panel-status.error {
-    color: #dc3545;
-}
-
-/* Responsive layout for panels */
-@media (max-width: 1200px) {
-    .output-panel {
-        min-width: 250px;
-    }
-}
-
-@media (max-width: 768px) {
-    .output-panels-container {
-        flex-direction: column;
-    }
-    
-    .output-panel {
-        min-width: 100%;
-        max-height: 250px;
-    }
+  background: #f8d7da;
+  color: #dc3545;
 }
 
 /* ----------- Хедер ----------- */
