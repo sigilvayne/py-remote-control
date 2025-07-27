@@ -26,6 +26,7 @@ jobs:
         context: .
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev
+        no-cache: true
 
   deploy-to-ec2:
     needs: build-and-push
@@ -47,6 +48,7 @@ jobs:
           sudo systemctl start docker
           sudo usermod -a -G docker ec2-user
 
+          sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev || true
           sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev
           sudo docker stop control-center-dev || true
           sudo docker rm control-center-dev || true
