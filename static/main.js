@@ -223,6 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
       servers.forEach(server => {
         const li = document.createElement('li');
         li.textContent = server;
+        li.classList.add('server-item');
 
         li.addEventListener('click', () => {
           li.classList.toggle('selected');
