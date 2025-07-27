@@ -47,22 +47,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
    // ------------------Add tooltips from data-desc------------------ //
   document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
-  const desc = li.getAttribute('data-desc');
-  if (desc) {
-    const tooltip = document.createElement('div');
-    tooltip.className = 'tooltip-text';
-    tooltip.textContent = desc;
-    li.style.position = 'relative';
-    li.appendChild(tooltip);
-  }
-});
+    const desc = li.getAttribute('data-desc');
+    if (desc) {
+      const tooltip = document.createElement('div');
+      tooltip.className = 'tooltip-text';
+      tooltip.textContent = desc;
+      li.style.position = 'relative';
+      li.appendChild(tooltip);
+    }
+  });
 
   //-----------------------Send command---------------------------//
 
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
     const command = commandInput.value.trim();
-  
+
     let isComplex = false;
     const commandListItems = document.querySelectorAll('#command-list .nested-list li');
     commandListItems.forEach(item => {
@@ -73,12 +73,12 @@ document.addEventListener("DOMContentLoaded", () => {
         isComplex = true;
       }
     });
-  
+
     if (selectedServers.size === 0 || !command) {
       alert("Оберіть хоча б один сервер та введіть команду.");
       return;
     }
-  
+
     // Start command execution in background without blocking the UI
     executeCommandInBackground(command, selectedServers, isComplex);
   }
@@ -87,43 +87,50 @@ document.addEventListener("DOMContentLoaded", () => {
   function createOutputWindow(command, serverId, commandId) {
     const outputContainer = document.getElementById('output-container');
     const windowId = `output-${commandCounter++}`;
-    
+
     const outputWindow = document.createElement('div');
     outputWindow.className = 'output-window';
     outputWindow.id = windowId;
-    
+
     const header = document.createElement('div');
     header.className = 'output-header';
-    
+
     const title = document.createElement('div');
     title.className = 'output-title';
     title.textContent = `${serverId} - ${command.substring(0, 30)}${command.length > 30 ? '...' : ''}`;
-    
+
     const status = document.createElement('span');
     status.className = 'output-status running';
     status.textContent = 'Running';
-    
+
+    // Create close button with SVG
     const closeBtn = document.createElement('button');
     closeBtn.className = 'output-close';
-    closeBtn.innerHTML = '×';
+    closeBtn.setAttribute('aria-label', 'Close output window');
+    closeBtn.innerHTML = `
+      <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666">
+        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+      </svg>
+    `;
     closeBtn.onclick = () => {
       outputWindow.remove();
       outputWindows.delete(commandId);
     };
-    
+
     header.appendChild(title);
-    header.appendChild(status);
     header.appendChild(closeBtn);
-    
+
     const content = document.createElement('textarea');
     content.className = 'output-content';
     content.placeholder = 'Waiting for output...';
     content.readOnly = true;
-    
+
     outputWindow.appendChild(header);
     outputWindow.appendChild(content);
-    outputContainer.appendChild(outputWindow);
+    outputWindow.appendChild(status);
     
+    outputContainer.appendChild(outputWindow);
+
     // Store reference to the window
     outputWindows.set(commandId, {
       window: outputWindow,
@@ -131,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
       status: status,
       serverId: serverId
     });
-    
+
     return windowId;
   }
 
@@ -157,12 +164,12 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ command })
         });
         if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
-  
+
         const { command_id } = await res.json();
-        
+
         // Create output window for this command
         createOutputWindow(command, serverId, command_id);
-        
+
         // Start monitoring the command result
         monitorCommandResult(serverId, command_id, isComplex);
       }
@@ -175,31 +182,31 @@ document.addEventListener("DOMContentLoaded", () => {
   async function monitorCommandResult(serverId, commandId, isComplex) {
     let tries = isComplex ? Infinity : 30;
     let output = '';
-    
+
     while (tries-- > 0) {
       try {
         const resultRes = await fetch(`/get_result/${serverId}?command_id=${commandId}`);
         if (!resultRes.ok) throw new Error(`Помилка при отриманні результату з сервера ${serverId}`);
-  
+
         const data = await resultRes.json();
         if (data.status !== "no_result") {
           output = data.stdout || JSON.stringify(data);
           updateOutputWindow(commandId, output, 'completed');
           break;
         }
-        
+
         await new Promise(r => setTimeout(r, 1000));
       } catch (error) {
         updateOutputWindow(commandId, `Error: ${error.message}`, 'error');
         break;
       }
     }
-  
+
     if (tries <= 0 && !isComplex) {
       updateOutputWindow(commandId, 'Команда не повернула результат протягом 30 секунд.', 'error');
     }
   }
-  
+
 
   window.sendCommand = sendCommand;
 
@@ -223,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
       servers.forEach(server => {
         const li = document.createElement('li');
         li.textContent = server;
-        li.classList.add('server-item');
+        li.classList.add('server-item')
 
         li.addEventListener('click', () => {
           li.classList.toggle('selected');
