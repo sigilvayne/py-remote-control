@@ -56,33 +56,32 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
   //-----------------------Send command---------------------------//
+
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
     const command = commandInput.value.trim();
     const sendBtn = document.getElementById('send-btn');
     const output = document.getElementById('command-output');
-
-    // Detect if the selected command is complex
+  
     let isComplex = false;
     const commandListItems = document.querySelectorAll('#command-list .nested-list li');
     commandListItems.forEach(item => {
       if (item.classList.contains('selected') || item === document.activeElement) {
         if (item.dataset.complex === 'true') isComplex = true;
       }
-      // fallback: check if commandInput matches this script
       if (item.dataset && item.dataset.script && command.includes(item.dataset.script) && item.dataset.complex === 'true') {
         isComplex = true;
       }
     });
-
+  
     if (selectedServers.size === 0 || !command) {
       alert("Оберіть хоча б один сервер та введіть команду.");
       return;
     }
-
+  
     sendBtn.disabled = true;
     sendBtn.textContent = "Надсилання...";
-
+  
     try {
       for (const serverId of selectedServers) {
         const res = await fetch(`/set_command/${serverId}`, {
@@ -91,20 +90,24 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ command })
         });
         if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
-
+  
         const { command_id } = await res.json();
-
-        let tries = 30;
+  
+        let tries = isComplex ? Infinity : 30;
         while (tries-- > 0) {
           const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
           if (!resultRes.ok) throw new Error(`Помилка при отриманні результату з сервера ${serverId}`);
-
+  
           const data = await resultRes.json();
           if (data.status !== "no_result") {
             output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
             break;
           }
           await new Promise(r => setTimeout(r, 1000));
+        }
+  
+        if (tries <= 0 && !isComplex) {
+          output.value += `=== ${serverId} ===\n⏱️ Команда не повернула результат протягом 30 секунд.\n\n----------------------\n`;
         }
       }
     } catch (error) {
@@ -114,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
       sendBtn.textContent = "Надіслати";
     }
   }
+  
 
   window.sendCommand = sendCommand;
 
