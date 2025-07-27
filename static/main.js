@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const selectedServers = new Set();
+  const outputWindows = new Map(); // Для збереження output windows по command_id
+  let commandCounter = 0; // Counter для унікальних ID команд
 
   //-----------------------Folder toggling---------------------------//
   document.querySelectorAll('.folder-label').forEach(label => {
@@ -56,69 +58,148 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
   //-----------------------Send command---------------------------//
+
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
     const command = commandInput.value.trim();
-    const sendBtn = document.getElementById('send-btn');
-    const output = document.getElementById('command-output');
-
-    // Detect if the selected command is complex
+  
     let isComplex = false;
     const commandListItems = document.querySelectorAll('#command-list .nested-list li');
     commandListItems.forEach(item => {
       if (item.classList.contains('selected') || item === document.activeElement) {
         if (item.dataset.complex === 'true') isComplex = true;
       }
-      // fallback: check if commandInput matches this script
       if (item.dataset && item.dataset.script && command.includes(item.dataset.script) && item.dataset.complex === 'true') {
         isComplex = true;
       }
     });
-
+  
     if (selectedServers.size === 0 || !command) {
       alert("Оберіть хоча б один сервер та введіть команду.");
       return;
     }
+  
+    // Start command execution in background without blocking the UI
+    executeCommandInBackground(command, selectedServers, isComplex);
+  }
 
-    sendBtn.disabled = true;
-    sendBtn.textContent = "Надсилання...";
+  // Function to create a new output window
+  function createOutputWindow(command, serverId, commandId) {
+    const outputContainer = document.getElementById('output-container');
+    const windowId = `output-${commandCounter++}`;
+    
+    const outputWindow = document.createElement('div');
+    outputWindow.className = 'output-window';
+    outputWindow.id = windowId;
+    
+    const header = document.createElement('div');
+    header.className = 'output-header';
+    
+    const title = document.createElement('div');
+    title.className = 'output-title';
+    title.textContent = `${serverId} - ${command.substring(0, 30)}${command.length > 30 ? '...' : ''}`;
+    
+    const status = document.createElement('span');
+    status.className = 'output-status running';
+    status.textContent = 'Running';
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'output-close';
+    closeBtn.innerHTML = '×';
+    closeBtn.onclick = () => {
+      outputWindow.remove();
+      outputWindows.delete(commandId);
+    };
+    
+    header.appendChild(title);
+    header.appendChild(status);
+    header.appendChild(closeBtn);
+    
+    const content = document.createElement('textarea');
+    content.className = 'output-content';
+    content.placeholder = 'Waiting for output...';
+    content.readOnly = true;
+    
+    outputWindow.appendChild(header);
+    outputWindow.appendChild(content);
+    outputContainer.appendChild(outputWindow);
+    
+    // Store reference to the window
+    outputWindows.set(commandId, {
+      window: outputWindow,
+      content: content,
+      status: status,
+      serverId: serverId
+    });
+    
+    return windowId;
+  }
 
+  // Function to update output window content
+  function updateOutputWindow(commandId, content, status = null) {
+    const windowData = outputWindows.get(commandId);
+    if (windowData) {
+      windowData.content.value = content;
+      if (status) {
+        windowData.status.textContent = status;
+        windowData.status.className = `output-status ${status.toLowerCase()}`;
+      }
+    }
+  }
+
+  // New function to handle command execution in background
+  async function executeCommandInBackground(command, servers, isComplex) {
     try {
-      for (const serverId of selectedServers) {
+      for (const serverId of servers) {
         const res = await fetch(`/set_command/${serverId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ command })
         });
         if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
-
+  
         const { command_id } = await res.json();
-
-        if (isComplex) {
-          output.value += `=== ${serverId} ===\nКоманду надіслано успішно (комплексна команда)\n\n----------------------\n`;
-          continue;
-        }
-
-        let tries = 30;
-        while (tries-- > 0) {
-          const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
-          if (!resultRes.ok) throw new Error(`Помилка при отриманні результату з сервера ${serverId}`);
-
-          const data = await resultRes.json();
-          if (data.status !== "no_result") {
-            output.value += `=== ${serverId} ===\n${data.stdout || JSON.stringify(data)}\n\n----------------------\n`;
-            break;
-          }
-          await new Promise(r => setTimeout(r, 1000));
-        }
+        
+        // Create output window for this command
+        createOutputWindow(command, serverId, command_id);
+        
+        // Start monitoring the command result
+        monitorCommandResult(serverId, command_id, isComplex);
       }
     } catch (error) {
       alert(error.message);
-    } finally {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Надіслати";
     }
   }
+
+  // Function to monitor command result
+  async function monitorCommandResult(serverId, commandId, isComplex) {
+    let tries = isComplex ? Infinity : 30;
+    let output = '';
+    
+    while (tries-- > 0) {
+      try {
+        const resultRes = await fetch(`/get_result/${serverId}?command_id=${commandId}`);
+        if (!resultRes.ok) throw new Error(`Помилка при отриманні результату з сервера ${serverId}`);
+  
+        const data = await resultRes.json();
+        if (data.status !== "no_result") {
+          output = data.stdout || JSON.stringify(data);
+          updateOutputWindow(commandId, output, 'completed');
+          break;
+        }
+        
+        await new Promise(r => setTimeout(r, 1000));
+      } catch (error) {
+        updateOutputWindow(commandId, `Error: ${error.message}`, 'error');
+        break;
+      }
+    }
+  
+    if (tries <= 0 && !isComplex) {
+      updateOutputWindow(commandId, 'Команда не повернула результат протягом 30 секунд.', 'error');
+    }
+  }
+  
 
   window.sendCommand = sendCommand;
 
@@ -192,11 +273,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   //-----------------------Clear output button---------------------------//
-  const output = document.getElementById("command-output");
   const clearBtn = document.getElementById("clear-btn");
-  if (clearBtn && output) {
+  if (clearBtn) {
     clearBtn.addEventListener("click", () => {
-      output.value = "";
+      // Clear all output windows
+      const outputContainer = document.getElementById('output-container');
+      outputContainer.innerHTML = '';
+      outputWindows.clear();
+      commandCounter = 0;
     });
   }
 

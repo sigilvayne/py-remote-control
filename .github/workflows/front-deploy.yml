@@ -14,18 +14,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Set image tag from commit SHA
+      run: echo "IMAGE_TAG=front-${{ github.sha }}" >> $GITHUB_ENV
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Docker image (dev)
+    - name: Build and push Docker image (front)
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:${{ env.IMAGE_TAG }}
+        no-cache: true
 
   deploy-to-ec2:
     needs: build-and-push
@@ -37,31 +41,36 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
 
-    - name: Deploy and run Docker container on EC2 (dev)
+    - name: Deploy and run Docker container on EC2 (front)
+      env:
+        IMAGE_TAG: front-${{ github.sha }}
       run: |
-        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << EOF
+        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} "
+          IMAGE_TAG=${IMAGE_TAG}
+
           sudo yum update -y
-          sudo amazon-linux-extras enable docker
+
           sudo yum install -y docker
           sudo systemctl enable docker
           sudo systemctl start docker
           sudo usermod -a -G docker ec2-user
 
-          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev
-          sudo docker stop control-center-dev || true
-          sudo docker rm control-center-dev || true
+          sudo docker stop control-center-front || true
+          sudo docker rm control-center-front || true
+          sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:\$IMAGE_TAG || true
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:\$IMAGE_TAG
 
-          mkdir -p /home/ec2-user/dev-data
-          touch /home/ec2-user/dev-data/.keep
-          sudo chown -R ec2-user:ec2-user /home/ec2-user/dev-data
-          sudo chmod 755 /home/ec2-user/dev-data
+          mkdir -p /home/ec2-user/front-data
+          touch /home/ec2-user/front-data/.keep
+          sudo chown -R ec2-user:ec2-user /home/ec2-user/front-data
+          sudo chmod 755 /home/ec2-user/front-data
 
           sudo docker run -d -p 8002:8000 \
             -e FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }} \
             -e ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }} \
             -e ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} \
             -e AGENT_TOKEN=${{ secrets.AGENT_TOKEN }} \
-            --name control-center-dev \
-            -v /home/ec2-user/dev-data:/app/data \
-            ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev
-        EOF
+            --name control-center-front \
+            -v /home/ec2-user/front-data:/app/data \
+            ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:\$IMAGE_TAG
+        "

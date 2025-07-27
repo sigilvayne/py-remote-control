@@ -1,14 +1,34 @@
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$logFolder = 'C:\Script\logs'
-$logFile = "$logFolder\dism.txt"
-if (-not (Test-Path $logFolder)) { New-Item -ItemType Directory -Path $logFolder -Force | Out-Null }
-
-"==== Аналіз компонентного сховища $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ====" | Out-File -FilePath $logFile -Append -Encoding utf8
+﻿# Аналіз компонентного сховища Windows за допомогою DISM
+Write-Host "=== Аналіз компонентного сховища Windows ===" -ForegroundColor Green
+Write-Host "Початок аналізу: $(Get-Date)" -ForegroundColor Yellow
 
 try {
-    DISM /Online /Cleanup-Image /AnalyzeComponentStore | Out-File -FilePath $logFile -Append -Encoding utf8
+    # Аналіз компонентного сховища
+    Write-Host "`nВиконується аналіз компонентного сховища..." -ForegroundColor Cyan
+    $analyzeResult = DISM.exe /Online /Cleanup-Image /AnalyzeComponentStore
+    
+    Write-Host "`n=== Результати аналізу компонентного сховища ===" -ForegroundColor Green
+    foreach ($line in $analyzeResult) {
+        Write-Host $line
+    }
+    
+    # Додаткова інформація про розмір компонентного сховища
+    Write-Host "`n=== Детальна інформація про компонентне сховище ===" -ForegroundColor Green
+    
+    $componentStore = Get-ChildItem -Path "C:\Windows\WinSxS" -ErrorAction SilentlyContinue
+    if ($componentStore) {
+        $totalSize = ($componentStore | Measure-Object -Property Length -Sum).Sum
+        $sizeInGB = [math]::Round($totalSize / 1GB, 2)
+        Write-Host "Розмір папки WinSxS: $sizeInGB GB"
+    }
+    
+    # Перевірка доступного місця на диску C:
+    $diskInfo = Get-PSDrive -Name C
+    $freeSpaceGB = [math]::Round($diskInfo.Free / 1GB, 2)
+    Write-Host "Вільне місце на диску C:: $freeSpaceGB GB"
+    
 } catch {
-    "Помилка аналізу: $_" | Out-File -FilePath $logFile -Append -Encoding utf8
+    Write-Host "Помилка при виконанні аналізу: $($_.Exception.Message)" -ForegroundColor Red
 }
 
-"" | Out-File -FilePath $logFile -Append -Encoding utf8
+Write-Host "`nАналіз завершено: $(Get-Date)" -ForegroundColor Yellow
