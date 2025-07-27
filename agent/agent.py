@@ -104,4 +104,4 @@ while True:
         with open("agent_error.log", "a", encoding="utf-8") as f:
             f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Main loop error: {str(e)}\n")
 
-    time.sleep(3)
+    time.sleep(1)
