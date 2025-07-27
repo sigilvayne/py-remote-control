@@ -3,7 +3,7 @@ name: Build and Deploy Dev Environment
 on:
   push:
     branches:
-      - dev
+      - backend
   workflow_dispatch:
 
 jobs:
