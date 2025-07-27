@@ -60,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
   async function sendCommand() {
     const commandInput = document.getElementById('command-input');
     const command = commandInput.value.trim();
-    const sendBtn = document.getElementById('send-btn');
     const output = document.getElementById('command-output');
   
     let isComplex = false;
@@ -79,11 +78,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
   
-    sendBtn.disabled = true;
-    sendBtn.textContent = "Надсилання...";
-  
+    // Start command execution in background without blocking the UI
+    executeCommandInBackground(command, selectedServers, isComplex);
+  }
+
+  // New function to handle command execution in background
+  async function executeCommandInBackground(command, servers, isComplex) {
+    const output = document.getElementById('command-output');
+    
     try {
-      for (const serverId of selectedServers) {
+      for (const serverId of servers) {
         const res = await fetch(`/set_command/${serverId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -107,14 +111,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
   
         if (tries <= 0 && !isComplex) {
-          output.value += `=== ${serverId} ===\n⏱️ Команда не повернула результат протягом 30 секунд.\n\n----------------------\n`;
+          output.value += `=== ${serverId} ===\n Команда не повернула результат протягом 30 секунд.\n\n----------------------\n`;
         }
       }
     } catch (error) {
       alert(error.message);
-    } finally {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Надіслати";
     }
   }
   
