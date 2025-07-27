@@ -49,8 +49,6 @@ jobs:
           IMAGE_TAG=${IMAGE_TAG}
 
           sudo yum update -y
-
-          # Skip amazon-linux-extras — не потрібно для Amazon Linux 2023
           sudo yum install -y docker
           sudo systemctl enable docker
           sudo systemctl start docker
