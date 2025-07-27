@@ -94,11 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const { command_id } = await res.json();
 
-        if (isComplex) {
-          output.value += `=== ${serverId} ===\nКоманду надіслано успішно (комплексна команда)\n\n----------------------\n`;
-          continue;
-        }
-
         let tries = 30;
         while (tries-- > 0) {
           const resultRes = await fetch(`/get_result/${serverId}?command_id=${command_id}`);
