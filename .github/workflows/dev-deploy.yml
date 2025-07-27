@@ -14,6 +14,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Set image tag from commit SHA
+      run: echo "IMAGE_TAG=dev-${{ github.sha }}" >> $GITHUB_ENV
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
@@ -25,7 +28,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:${{ env.IMAGE_TAG }}
         no-cache: true
 
   deploy-to-ec2:
@@ -39,19 +42,24 @@ jobs:
         ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
 
     - name: Deploy and run Docker container on EC2 (dev)
+      env:
+        IMAGE_TAG: dev-${{ github.sha }}
       run: |
-        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << EOF
+        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} "
+          IMAGE_TAG=${IMAGE_TAG}
+
           sudo yum update -y
-          sudo amazon-linux-extras enable docker
+
+          # Skip amazon-linux-extras — не потрібно для Amazon Linux 2023
           sudo yum install -y docker
           sudo systemctl enable docker
           sudo systemctl start docker
           sudo usermod -a -G docker ec2-user
 
-          sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev || true
-          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev
           sudo docker stop control-center-dev || true
           sudo docker rm control-center-dev || true
+          sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:\$IMAGE_TAG || true
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:\$IMAGE_TAG
 
           mkdir -p /home/ec2-user/dev-data
           touch /home/ec2-user/dev-data/.keep
@@ -65,5 +73,5 @@ jobs:
             -e AGENT_TOKEN=${{ secrets.AGENT_TOKEN }} \
             --name control-center-dev \
             -v /home/ec2-user/dev-data:/app/data \
-            ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:dev
-        EOF
+            ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:\$IMAGE_TAG
+        "
