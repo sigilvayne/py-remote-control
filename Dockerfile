@@ -9,6 +9,7 @@ COPY api.py .
 COPY templates/ ./templates/
 COPY static ./static
 COPY scripts ./scripts
+COPY user.json .
 
 RUN mkdir -p /app/data
 

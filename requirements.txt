@@ -6,3 +6,4 @@ flask_sqlalchemy
 dotenv
 load_dotenv
 python-dotenv
+bcrypt

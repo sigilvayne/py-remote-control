@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Керування користувачами</title>
+</head>
+<body>
+    <h1>Користувачі ({{ username }})</h1>
+    <table border="1">
+        <tr>
+            <th>Ім'я</th>
+            <th>Роль</th>
+            <th>Активний</th>
+            <th>Дії</th>
+        </tr>
+        {% for user, data in users.items() %}
+        <tr>
+            <td>{{ user }}</td>
+            <td>{{ data.role }}</td>
+            <td>{{ 'Так' if data.active else 'Ні' }}</td>
+            <td>
+                <form method="post" action="{{ url_for('delete_user', username=user) }}" style="display:inline;">
+                    <button type="submit">Видалити</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Додати користувача</h2>
+    <form method="post" action="{{ url_for('add_user') }}">
+        <label>Ім'я: <input type="text" name="username" required></label><br>
+        <label>Пароль: <input type="password" name="password" required></label><br>
+        <label>Роль: <input type="text" name="role" value="viewer"></label><br>
+        <label>Активний: <input type="checkbox" name="active" checked></label><br>
+        <button type="submit">Додати</button>
+    </form>
+
+    <p><a href="{{ url_for('index') }}">На головну</a></p>
+</body>
+</html>
