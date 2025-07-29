@@ -1,10 +1,10 @@
-name: Build and Push Docker Image
+name: Build and Deploy Prod Environment
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -20,12 +20,13 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Docker image
+    - name: Build and push Docker image (prod)
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
+        no-cache: true
 
   deploy-to-ec2:
     needs: build-and-push
@@ -37,24 +38,25 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
 
-    - name: Deploy and run Docker container on EC2
+    - name: Deploy and run Docker container on EC2 (prod)
       run: |
-        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << EOF
+        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} "
           sudo yum update -y
-          sudo amazon-linux-extras enable docker
           sudo yum install -y docker
           sudo systemctl enable docker
           sudo systemctl start docker
           sudo usermod -a -G docker ec2-user
 
-          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
           sudo docker stop control-center || true
           sudo docker rm control-center || true
+          sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest || true
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
 
           mkdir -p /home/ec2-user/data
-          touch /home/ec2-user/data/.keep
-          sudo chown -R ec2-user:ec2-user /home/ec2-user/data
-          sudo chmod 755 /home/ec2-user/data
+          mkdir -p /home/ec2-user/secrets
+          echo '${{ secrets.USER_JSON }}' | base64 -d > /home/ec2-user/secrets/user.json
+          sudo chown -R ec2-user:ec2-user /home/ec2-user/secrets
+          sudo chmod 600 /home/ec2-user/secrets/user.json
 
           sudo docker run -d -p 8000:8000 \
             -e FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }} \
@@ -63,5 +65,6 @@ jobs:
             -e AGENT_TOKEN=${{ secrets.AGENT_TOKEN }} \
             --name control-center \
             -v /home/ec2-user/data:/app/data \
+            -v /home/ec2-user/secrets/user.json:/app/user.json:rw \
             ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:latest
-        EOF
+        "
