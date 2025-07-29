@@ -19,3 +19,5 @@ override.tf.json
 
 scripts/variables/
 /data/servers.db
+
+user.json
