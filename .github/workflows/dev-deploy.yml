@@ -60,9 +60,10 @@ jobs:
           sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:\$IMAGE_TAG
 
           mkdir -p /home/ec2-user/dev-data
-          touch /home/ec2-user/dev-data/.keep
-          sudo chown -R ec2-user:ec2-user /home/ec2-user/dev-data
-          sudo chmod 755 /home/ec2-user/dev-data
+          mkdir -p /home/ec2-user/secrets
+          echo "${{ secrets.USER_JSON }}" | base64 -d > /home/ec2-user/secrets/user.json
+          sudo chown -R ec2-user:ec2-user /home/ec2-user/secrets
+          sudo chmod 600 /home/ec2-user/secrets/user.json
 
           sudo docker run -d -p 8001:8000 \
             -e FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }} \
@@ -71,5 +72,6 @@ jobs:
             -e AGENT_TOKEN=${{ secrets.AGENT_TOKEN }} \
             --name control-center-dev \
             -v /home/ec2-user/dev-data:/app/data \
+            -v /home/ec2-user/secrets/user.json:/app/user.json:rw \
             ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control:\$IMAGE_TAG
         "

@@ -93,7 +93,7 @@ def logout():
 @login_required
 def user_control():
     users = load_users()
-    return render_template('user_control.html', users=users, username=session['username'])
+    return render_template('user-control.html', users=users, username=session['username'])
 
 @app.route('/add_user', methods=['POST'])
 @login_required
@@ -249,5 +249,5 @@ def get_medoc_version():
 
 #---------------------Start-------------------#
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=8000)
