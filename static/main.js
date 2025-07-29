@@ -46,16 +46,27 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
    // ------------------Add tooltips from data-desc------------------ //
-  document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
-    const desc = li.getAttribute('data-desc');
-    if (desc) {
-      const tooltip = document.createElement('div');
-      tooltip.className = 'tooltip-text';
-      tooltip.textContent = desc;
-      li.style.position = 'relative';
-      li.appendChild(tooltip);
-    }
+const tooltip = document.getElementById('tooltip');
+
+document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
+  li.addEventListener('mouseenter', () => {
+    if (window.matchMedia('(hover: none)').matches) return;
+
+    tooltip.textContent = li.getAttribute('data-desc');
+    tooltip.classList.add('visible');
+
+    const rect = li.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+    tooltip.style.left = (rect.left + scrollLeft + rect.width / 2) + 'px';
+    tooltip.style.top = (rect.top + scrollTop - tooltip.offsetHeight - 6) + 'px';
   });
+
+  li.addEventListener('mouseleave', () => {
+    tooltip.classList.remove('visible');
+  });
+});
 
   //-----------------------Send command---------------------------//
 

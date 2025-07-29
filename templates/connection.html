@@ -48,7 +48,7 @@
         <section class="command-section">
 
             <div class="command-editor">
-                <h2 class="h2-margin">Команда</h2>
+                <h2 class="h2-margin" style="margin-top:1rem;">Команда</h2>
                 <textarea id="command-input" rows="3" placeholder="Оберіть команду або введіть свою" class="command-input"></textarea>
                 <div class="flex-buttons">
                 <button id="send-btn" onclick="sendCommand()" style="font-weight: bold;">Надіслати</button>
@@ -147,6 +147,8 @@
         <section class="output-section">
             <div id="output-container" class="output-container"></div>
         </section>
+
+        <div id="tooltip" class="tooltip-text"></div>
     </main>
 
 <script src="/static/main.js"></script>
