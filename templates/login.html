@@ -143,6 +143,7 @@
             <div class="error">{{ error }}</div>
         {% endif %}
         <form method="POST" action="{{ url_for('login') }}" class="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="input-wrapper">
                 <span class="icon icon-user"></span>
                     <input type="text" name="username" placeholder="Ім'я користувача" class="input-icon-one" required />

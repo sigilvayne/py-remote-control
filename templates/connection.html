@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Центр керування серверами</title>
     <link rel="icon" type="image/png" href="/static/images/icon.png">
     <link rel="stylesheet" href="/static/style.css">
@@ -90,15 +91,16 @@
                     </ul>
                 </li>
                 <li>
-                    <span class="folder-label folder"><span class="icon test-icon"></span>Тестування</span>
+                    <span class="folder-label folder"><span class="icon test-icon"></span>Агент</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="testing/send-script.ps1" data-desc="Виконує тестовий скрипт для перевірки взаємодії з агентом.">send-script.ps1</li>
+                        <li data-script="testing/send-script.ps1" data-desc="Виконує тестовий скрипт для перевірки взаємодії з агентом.">Тест зв'язку</li>
+                        <li data-script="testing/uninstall-agent.ps1" data-desc="Зупиняє службу агента (Агент серверу стане доступний! Щоб відновити роботу, запустіть службу AgentService)" data-neglect="true">Зупинити агент</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon group-icon"></span>Користувачі</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="users/rdp-fail.ps1" data-desc="Показує список користувачів, які зараз підключені через RDP.">Активні користувачі</li>
+                        <li data-script="users/active-users.ps1" data-desc="Показує список користувачів, які зараз підключені через RDP.">Активні користувачі</li>
                         <li data-script="users/last-login.ps1" data-desc="Виводить інформацію про останній вхід кожного користувача на сервер.">Останній вхід користувачів</li>
                         <li data-script="users/user-kick-inactive.ps1" data-desc="Завершує всі відключені (disconnected) RDP-сеанси користувачів.">Завершити відключені сеанси</li>
                         <li data-script="users/rdp-fail.ps1" data-desc="Показує список невдалих спроб входу по RDP.">Невдалі входи по RDP</li>
@@ -127,6 +129,12 @@
                         <li data-script="rdpguard/rdpguard-unlock.ps1" data-desc="Розблоковує всі IP-адреси, заблоковані RDP Guard.">Розблокувати усі IP</li>
                         <li data-script="rdpguard/rdpguard-check-license.ps1" data-desc="Перевіряє стан ліцензії RDP Guard.">Перевірити ліцензію</li>
                         <li data-script="rdpguard/rdpguard-restore-license.ps1" data-desc="Оновлює або відновлює ліцензію RDP Guard.">Оновити ліцензію</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="folder-label folder"><span class="icon security-icon"></span>Антивірус</span>
+                    <ul class="nested-list collapsed">
+                        <li data-script="antivirus/windows-defender-scan.ps1" data-desc="Запускає швидке сканування Windows Defender." data-complex="true">Швидке сканування Defender</li>
                     </ul>
                 </li>
             </ul>
