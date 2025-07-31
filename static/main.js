@@ -75,13 +75,16 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
     const command = commandInput.value.trim();
 
     let isComplex = false;
+    let isNeglected = false;
     const commandListItems = document.querySelectorAll('#command-list .nested-list li');
     commandListItems.forEach(item => {
       if (item.classList.contains('selected') || item === document.activeElement) {
         if (item.dataset.complex === 'true') isComplex = true;
+        if (item.dataset.neglect === 'true') isNeglected = true;
       }
-      if (item.dataset && item.dataset.script && command.includes(item.dataset.script) && item.dataset.complex === 'true') {
-        isComplex = true;
+      if (item.dataset && item.dataset.script && command.includes(item.dataset.script)) {
+        if (item.dataset.complex === 'true') isComplex = true;
+        if (item.dataset.neglect === 'true') isNeglected = true;
       }
     });
 
@@ -91,7 +94,7 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
     }
 
     // Start command execution in background without blocking the UI
-    executeCommandInBackground(command, selectedServers, isComplex);
+    executeCommandInBackground(command, selectedServers, isComplex, isNeglected);
   }
 
   // Function to create a new output window
@@ -166,7 +169,7 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
   }
 
   // New function to handle command execution in background
-  async function executeCommandInBackground(command, servers, isComplex) {
+  async function executeCommandInBackground(command, servers, isComplex, isNeglected) {
     try {
       for (const serverId of servers) {
         const res = await fetch(`/set_command/${serverId}`, {
@@ -185,7 +188,7 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
         createOutputWindow(command, serverId, command_id);
 
         // Start monitoring the command result
-        monitorCommandResult(serverId, command_id, isComplex);
+        monitorCommandResult(serverId, command_id, isComplex, isNeglected);
       }
     } catch (error) {
       alert(error.message);
@@ -193,7 +196,13 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
   }
 
   // Function to monitor command result
-  async function monitorCommandResult(serverId, commandId, isComplex) {
+  async function monitorCommandResult(serverId, commandId, isComplex, isNeglected) {
+    // For neglected commands, don't wait for output
+    if (isNeglected) {
+      updateOutputWindow(commandId, 'Команду надіслано', 'completed');
+      return;
+    }
+
     let tries = isComplex ? Infinity : 30;
     let output = '';
 
