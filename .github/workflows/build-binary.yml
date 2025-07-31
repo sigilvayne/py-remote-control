@@ -64,6 +64,9 @@ jobs:
       - name: Build agent.exe from Python script
         run: pyinstaller --onefile --noconsole agent/agent.py
 
+      - name: Build register.exe from Python script
+        run: pyinstaller --onefile --noconsole agent/register.py
+
       - name: Create or update hidden 'install' release
         uses: softprops/action-gh-release@v2
         with:
@@ -71,6 +74,7 @@ jobs:
           name: Install Release
           files: |
             dist/agent.exe
+            dist/register.exe
             agent/remove-uac.ps1
             agent/service.bat
             agent/uninstall.bat
