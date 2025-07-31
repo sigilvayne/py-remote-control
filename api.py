@@ -8,11 +8,14 @@ import os
 import uuid
 import bcrypt
 import json
+from flask_wtf import CSRFProtect
+
 
 #---------------------Init-------------------#
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app)
+csrf = CSRFProtect(app)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'data', 'servers.db')
@@ -167,6 +170,7 @@ def list_servers():
     servers = Server.query.order_by(Server.created_at.desc()).all()
     return jsonify([s.server_id for s in servers])
 
+@csrf.exempt
 @app.route('/register_server', methods=['POST'])
 @agent_auth_required
 def register_server():
@@ -226,6 +230,7 @@ def agent_get_command(server_id):
     cmd = commands.pop(server_id, None)
     return jsonify(cmd if cmd else {"status": "no_command"})
 
+@csrf.exempt
 @app.route('/agent_post_result/<server_id>', methods=['POST'])
 @agent_auth_required
 def agent_post_result(server_id):

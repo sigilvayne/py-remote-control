@@ -171,7 +171,10 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
       for (const serverId of servers) {
         const res = await fetch(`/set_command/${serverId}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
           body: JSON.stringify({ command })
         });
         if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);

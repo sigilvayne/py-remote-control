@@ -2,6 +2,8 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Керування користувачами</title>
 </head>
 <body>
@@ -20,6 +22,7 @@
             <td>{{ 'Так' if data.active else 'Ні' }}</td>
             <td>
                 <form method="post" action="{{ url_for('delete_user', username=user) }}" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit">Видалити</button>
                 </form>
             </td>
@@ -29,6 +32,7 @@
 
     <h2>Додати користувача</h2>
     <form method="post" action="{{ url_for('add_user') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <label>Ім'я: <input type="text" name="username" required></label><br>
         <label>Пароль: <input type="password" name="password" required></label><br>
         <label>Роль: <input type="text" name="role" value="viewer"></label><br>
