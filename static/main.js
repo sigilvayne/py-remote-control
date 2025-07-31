@@ -187,6 +187,9 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
         // Create output window for this command
         createOutputWindow(command, serverId, command_id);
 
+        // Wait 3 seconds before starting to monitor the result
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
         // Start monitoring the command result
         monitorCommandResult(serverId, command_id, isComplex, isNeglected);
       }
