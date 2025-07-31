@@ -1,4 +1,6 @@
 flask
+Flask-WTF
+WTForms
 gunicorn
 flask-cors
 Flask-Session

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Зареєстровані сервери</title>
     <link rel="stylesheet" href="/static/style.css" />
     <link rel="icon" type="image/png" href="/static/images/icon.png">
@@ -77,6 +78,7 @@
           </div>
           <div class="server-card-div">
             <form method="POST" action="{{ url_for('delete_server', server_id=s.id) }}" onsubmit="return confirm('Ви впевнені, що хочете видалити цей сервер?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" class="delete-btn">Видалити</button>
             </form>
           </div>

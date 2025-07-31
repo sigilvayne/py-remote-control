@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Send Command</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
   <h1>Надіслати команду агенту</h1>
@@ -27,7 +28,8 @@
       const res = await fetch(url, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "X-CSRFToken": document.querySelector('meta[name=\"csrf-token\"]').getAttribute('content')
         },
         body: JSON.stringify({ command: command })
       });
