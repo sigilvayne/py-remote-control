@@ -1,21 +1,23 @@
-$logPath = "C:\Script\logs"
-$logFile = "$logPath\update.txt"
+Import-Module PSWindowsUpdate
 
-if (-not (Test-Path $logPath)) {
-    New-Item -Path $logPath -ItemType Directory -Force | Out-Null
-}
+$updates = Get-WindowsUpdate -MicrosoftUpdate -IgnoreUserInput -AcceptAll -Download -Install -AutoReboot:$false -ErrorAction SilentlyContinue
 
-if (-not (Test-Path $logFile)) {
-    New-Item -Path $logFile -ItemType File -Force | Out-Null
-}
+$installed = $updates | Where-Object { $_.IsInstalled }
 
-"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] ==== Оновлення запущено ====" | Tee-Object -FilePath $logFile -Append
+$pending = $updates | Where-Object { -not $_.IsInstalled }
 
-Install-Module PSWindowsUpdate -Force -Scope CurrentUser -ErrorAction SilentlyContinue | Tee-Object -FilePath $logFile -Append
-Import-Module PSWindowsUpdate | Tee-Object -FilePath $logFile -Append
+$finalReport = @"
+WINDOWS UPDATE - INSTALLATION SUMMARY:
+Updates Installed: $($installed.Count)
+Pending/Failed: $($pending.Count)
 
-Get-WindowsUpdate -AcceptAll -Install -IgnoreReboot | Tee-Object -FilePath $logFile -Append
+Installed Updates:
+$($installed.Title -join "`n")
 
-Update-MpSignature | Tee-Object -FilePath $logFile -Append
+Pending/Failed Updates:
+$($pending.Title -join "`n")
 
-"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] ==== Скрипт виконано успішно ====" | Tee-Object -FilePath $logFile -Append
+Перезавантажте систему для завершення оновлення.
+"@
+
+Write-Output $finalReport
