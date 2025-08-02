@@ -6,7 +6,7 @@ $resources = "$cpuCores/$ramGB/$diskGB"
 $os = Get-CimInstance Win32_OperatingSystem
 $osVersion = "$($os.Caption) $($os.Version) $($os.OSArchitecture)"
 
-$serviceName = "ZabbixAgent"
+$serviceName = "Zabbix Agent"
 $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 $serviceStatus = if ($service) { $service.Status } else { "Not found" }
 

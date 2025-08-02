@@ -1,6 +1,5 @@
 ﻿$output = dism /Online /Cleanup-Image /AnalyzeComponentStore 2>&1
 
-$report = ($output | Where-Object { $_ -match '^(Component Store (.*)|Date|Backups|Cache Size|Recommended|Suggested|.*reclaimable)' })
+$report = $output | Where-Object { $_ -match '^(Component Store (.*)|Date|Backups|Cache Size|Recommended|Suggested|.*reclaimable)' }
 
-$finalReport = "DISM ANALYZE REPORT:`n" + ($report -join "`n")
-Write-Output $finalReport
+Write-Output ($report -join "`n")

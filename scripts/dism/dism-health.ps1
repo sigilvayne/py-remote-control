@@ -6,5 +6,4 @@ if (-not $report) {
     $report = "No conclusive result found in DISM output."
 }
 
-$finalReport = "DISM HEALTH CHECK:`n" + ($report -join "`n")
-Write-Output $finalReport
+Write-Output ($report -join "`n")
