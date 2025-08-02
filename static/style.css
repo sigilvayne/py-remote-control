@@ -287,8 +287,7 @@ header {
     font-family: Consolas, monospace;
     font-size:var(--font-size-small);
     overflow-y: auto;
-    min-height: 10rem;
-    max-height: 30rem;
+    height: clamp(12rem, 30vh, 30rem);
     white-space: pre-wrap;
     word-wrap: break-word;
     background-color: var(--bg-muted);

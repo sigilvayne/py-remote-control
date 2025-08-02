@@ -99,62 +99,98 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
 
   // Function to create a new output window
   function createOutputWindow(command, serverId, commandId) {
-    const outputContainer = document.getElementById('output-container');
-    const windowId = `output-${commandCounter++}`;
+  const outputContainer = document.querySelector('.output-section'); // output section container
+  const windowId = `output-${commandCounter++}`;
 
-    const outputWindow = document.createElement('div');
-    outputWindow.className = 'output-window';
-    outputWindow.id = windowId;
+  const outputWindow = document.createElement('div');
+  outputWindow.className = 'output-window';
+  outputWindow.id = windowId;
 
-    const header = document.createElement('div');
-    header.className = 'output-header';
+  const header = document.createElement('div');
+  header.className = 'output-header';
 
-    const title = document.createElement('div');
-    title.className = 'output-title';
-    title.textContent = `${serverId} - ${command.substring(0, 30)}${command.length > 30 ? '...' : ''}`;
+  // Container for icon + title text
+  const headerLeft = document.createElement('div');
+  headerLeft.className = 'output-header-left';
 
-    const status = document.createElement('span');
-    status.className = 'output-status running';
-    status.textContent = 'Running';
+  // Extract command name (first word, lowercase)
+  const commandName = command.trim().split(/\s+/)[0].toLowerCase();
 
-    // Create close button with SVG
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'output-close';
-    closeBtn.setAttribute('aria-label', 'Close output window');
-    closeBtn.innerHTML = `
-      <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666">
-        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
-      </svg>
-    `;
-    closeBtn.onclick = () => {
-      outputWindow.remove();
-      outputWindows.delete(commandId);
-    };
+  // Create icon span, add base 'icon' class + command-specific icon class
+  const iconSpan = document.createElement('span');
+  iconSpan.classList.add('icon');
 
-    header.appendChild(title);
-    header.appendChild(closeBtn);
+  // Map some command names to specific icon classes
+  // (adjust this mapping according to your actual command names and icon classes)
+  const iconClassMap = {
+    'update': 'update-icon',
+    'hive': 'hive-icon',
+    'test': 'test-icon',
+    'group': 'group-icon',
+    'disk': 'disk-icon',
+    'logout': 'logout-icon',
+    'guard': 'guard-icon',
+    'handy': 'handy-icon',
+  };
 
-    const content = document.createElement('textarea');
-    content.className = 'output-content';
-    content.placeholder = 'Waiting for output...';
-    content.readOnly = true;
+  // If no specific icon, fallback to cmd-icon (terminal icon)
+  const iconClass = iconClassMap[commandName] || 'cmd-icon';
+  iconSpan.classList.add(iconClass);
 
-    outputWindow.appendChild(header);
-    outputWindow.appendChild(content);
-    outputWindow.appendChild(status);
-    
-    outputContainer.appendChild(outputWindow);
+  // Create title div
+  const title = document.createElement('div');
+  title.className = 'output-title';
+  title.textContent = `${serverId} - ${commandName}`;
 
-    // Store reference to the window
-    outputWindows.set(commandId, {
-      window: outputWindow,
-      content: content,
-      status: status,
-      serverId: serverId
-    });
+  // Append icon + title to headerLeft container
+  headerLeft.appendChild(iconSpan);
+  headerLeft.appendChild(title);
 
-    return windowId;
-  }
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'output-close';
+  closeBtn.setAttribute('aria-label', 'Close output window');
+  closeBtn.innerHTML = `
+    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666">
+      <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+    </svg>
+  `;
+  closeBtn.onclick = () => {
+    outputWindow.remove();
+    outputWindows.delete(commandId);
+  };
+
+  // Append headerLeft and close button to header
+  header.appendChild(headerLeft);
+  header.appendChild(closeBtn);
+
+  // Content and status (unchanged)
+  const content = document.createElement('textarea');
+  content.className = 'output-content';
+  content.placeholder = 'Waiting for output...';
+  content.readOnly = true;
+
+  const status = document.createElement('span');
+  status.className = 'output-status running';
+  status.textContent = 'Running';
+
+  outputWindow.appendChild(header);
+  outputWindow.appendChild(content);
+  outputWindow.appendChild(status);
+
+  outputContainer.appendChild(outputWindow);
+
+  // Save reference
+  outputWindows.set(commandId, {
+    window: outputWindow,
+    content: content,
+    status: status,
+    serverId: serverId
+  });
+
+  return windowId;
+}
+
 
   // Function to update output window content
   function updateOutputWindow(commandId, content, status = null) {
