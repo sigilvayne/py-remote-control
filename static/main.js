@@ -4,17 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
   let commandCounter = 0; // Counter для унікальних ID команд
 
   //-----------------------Folder toggling---------------------------//
-  document.querySelectorAll('.folder-label').forEach(label => {
-    label.style.cursor = 'pointer';
-    label.addEventListener('click', (e) => {
-      const nested = label.nextElementSibling;
-      if (nested) {
-        nested.classList.toggle('collapsed');
-      }
-      label.classList.toggle('open');
-      e.stopPropagation();
-    });
+document.querySelectorAll('.folder-label').forEach(label => {
+  label.style.cursor = 'pointer';
+  label.addEventListener('click', (e) => {
+    const nested = label.nextElementSibling;
+    if (nested) {
+      nested.classList.toggle('collapsed');
+    }
+    label.classList.toggle('open');
+    e.stopPropagation();
   });
+});
 
   //-----------------------Commands click handling---------------------------//
   document.querySelectorAll('#command-list .nested-list li').forEach(item => {
@@ -22,6 +22,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const script = item.dataset.script;
       const dynamic = item.dataset.dynamic;
       const commandInput = document.getElementById('command-input');
+
+      // CHANGED: Find nearest parent folder icon class
+      let iconClass = 'cmd-icon'; // fallback
+      const folderLabel = item.closest('ul')?.closest('li')?.querySelector('.folder-label .icon');
+      if (folderLabel) {
+        iconClass = [...folderLabel.classList].find(c => c !== 'icon') || iconClass;
+      }
+
+      // CHANGED: Save icon class globally for output window
+      window.lastClickedIconClass = iconClass;
 
       if (dynamic === "medoc-download") {
         fetch('/get_medoc_version')
@@ -42,207 +52,89 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         commandInput.value = item.innerText;
       }
+
+      // CHANGED: Save clicked command text globally for output window title
+      window.lastClickedCommandText = item.innerText;
     });
   });
-
-   // ------------------Add tooltips from data-desc------------------ //
-const tooltip = document.getElementById('tooltip');
-
-document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
-  li.addEventListener('mouseenter', () => {
-    if (window.matchMedia('(hover: none)').matches) return;
-
-    tooltip.textContent = li.getAttribute('data-desc');
-    tooltip.classList.add('visible');
-
-    const rect = li.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-
-    tooltip.style.left = (rect.left + scrollLeft + rect.width / 2) + 'px';
-    tooltip.style.top = (rect.top + scrollTop - tooltip.offsetHeight - 6) + 'px';
-  });
-
-  li.addEventListener('mouseleave', () => {
-    tooltip.classList.remove('visible');
-  });
-});
-
-  //-----------------------Send command---------------------------//
-
-  async function sendCommand() {
-    const commandInput = document.getElementById('command-input');
-    const command = commandInput.value.trim();
-
-    let isComplex = false;
-    let isNeglected = false;
-    let isWip = false;
-    const commandListItems = document.querySelectorAll('#command-list .nested-list li');
-    commandListItems.forEach(item => {
-      if (item.classList.contains('selected') || item === document.activeElement) {
-        if (item.dataset.complex === 'true') isComplex = true;
-        if (item.dataset.neglect === 'true') isNeglected = true;
-        if (item.dataset.wip === 'true') isWip = true;
-      }
-      if (item.dataset && item.dataset.script && command.includes(item.dataset.script)) {
-        if (item.dataset.complex === 'true') isComplex = true;
-        if (item.dataset.neglect === 'true') isNeglected = true;
-        if (item.dataset.wip === 'true') isWip = true;
-      }
-    });
-
-    if (selectedServers.size === 0 || !command) {
-      alert("Оберіть хоча б один сервер та введіть команду.");
-      return;
-    }
-
-    if (isWip) {
-      alert("Дана команда поки недоступна");
-      return;
-    }
-
-    // Start command execution in background without blocking the UI
-    executeCommandInBackground(command, selectedServers, isComplex, isNeglected);
-  }
 
   // Function to create a new output window
-  function createOutputWindow(command, serverId, commandId) {
-  const outputContainer = document.querySelector('.output-section'); // output section container
-  const windowId = `output-${commandCounter++}`;
+  function createOutputWindow(command, serverId, commandId, friendlyName) {  // CHANGED: added friendlyName parameter
+    const outputContainer = document.querySelector('.output-container');
+    const windowId = `output-${commandCounter++}`;
 
-  const outputWindow = document.createElement('div');
-  outputWindow.className = 'output-window';
-  outputWindow.id = windowId;
+    const outputWindow = document.createElement('div');
+    outputWindow.className = 'output-window';
+    outputWindow.id = windowId;
 
-  const header = document.createElement('div');
-  header.className = 'output-header';
+    const header = document.createElement('div');
+    header.className = 'output-header';
 
-  // Container for icon + title text
-  const headerLeft = document.createElement('div');
-  headerLeft.className = 'output-header-left';
+    // Container for icon + title text
+    const headerLeft = document.createElement('div');
+    headerLeft.className = 'output-header-left';
 
-  // Extract command name (first word, lowercase)
-  const commandName = command.trim().split(/\s+/)[0].toLowerCase();
-
-  // Create icon span, add base 'icon' class + command-specific icon class
-  const iconSpan = document.createElement('span');
-  iconSpan.classList.add('icon');
-
-  // Map some command names to specific icon classes
-  // (adjust this mapping according to your actual command names and icon classes)
-  const iconClassMap = {
-    'update': 'update-icon',
-    'hive': 'hive-icon',
-    'test': 'test-icon',
-    'group': 'group-icon',
-    'disk': 'disk-icon',
-    'logout': 'logout-icon',
-    'guard': 'guard-icon',
-    'handy': 'handy-icon',
-  };
-
-  // If no specific icon, fallback to cmd-icon (terminal icon)
-  const iconClass = iconClassMap[commandName] || 'cmd-icon';
-  iconSpan.classList.add(iconClass);
-
-  // Create title div
-  const title = document.createElement('div');
-  title.className = 'output-title';
-  title.textContent = `${serverId} - ${commandName}`;
-
-  // Append icon + title to headerLeft container
-  headerLeft.appendChild(iconSpan);
-  headerLeft.appendChild(title);
-
-  // Close button
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'output-close';
-  closeBtn.setAttribute('aria-label', 'Close output window');
-  closeBtn.innerHTML = `
-    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666">
-      <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
-    </svg>
-  `;
-  closeBtn.onclick = () => {
-    outputWindow.remove();
-    outputWindows.delete(commandId);
-  };
-
-  // Append headerLeft and close button to header
-  header.appendChild(headerLeft);
-  header.appendChild(closeBtn);
-
-  // Content and status (unchanged)
-  const content = document.createElement('textarea');
-  content.className = 'output-content';
-  content.placeholder = 'Waiting for output...';
-  content.readOnly = true;
-
-  const status = document.createElement('span');
-  status.className = 'output-status running';
-  status.textContent = 'Running';
-
-  outputWindow.appendChild(header);
-  outputWindow.appendChild(content);
-  outputWindow.appendChild(status);
-
-  outputContainer.appendChild(outputWindow);
-
-  // Save reference
-  outputWindows.set(commandId, {
-    window: outputWindow,
-    content: content,
-    status: status,
-    serverId: serverId
-  });
-
-  return windowId;
-}
-
-
-  // Function to update output window content
-  function updateOutputWindow(commandId, content, status = null) {
-    const windowData = outputWindows.get(commandId);
-    if (windowData) {
-      windowData.content.value = content;
-      if (status) {
-        windowData.status.textContent = status;
-        windowData.status.className = `output-status ${status.toLowerCase()}`;
-      }
+    // CHANGED: Create icon span and add saved icon class
+    const iconSpan = document.createElement('span');
+    iconSpan.classList.add('icon');
+    if (window.lastClickedIconClass) {
+      iconSpan.classList.add(window.lastClickedIconClass);
+    } else {
+      iconSpan.classList.add('cmd-icon');
     }
+
+    // CHANGED: Use passed friendlyName or fallback command for title
+    const titleText = friendlyName || command;
+
+    const title = document.createElement('div');
+    title.className = 'output-title';
+    title.textContent = `${serverId} - ${titleText}`;
+
+    headerLeft.appendChild(iconSpan);
+    headerLeft.appendChild(title);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'output-close';
+    closeBtn.setAttribute('aria-label', 'Close output window');
+    closeBtn.innerHTML = `
+      <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666">
+        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+      </svg>
+    `;
+    closeBtn.onclick = () => {
+      outputWindow.remove();
+      outputWindows.delete(commandId);
+    };
+
+    header.appendChild(headerLeft);
+    header.appendChild(closeBtn);
+
+    const content = document.createElement('textarea');
+    content.className = 'output-content';
+    content.placeholder = 'Waiting for output...';
+    content.readOnly = true;
+
+    const status = document.createElement('span');
+    status.className = 'output-status running';
+    status.textContent = 'Running';
+
+    outputWindow.appendChild(header);
+    outputWindow.appendChild(content);
+    outputWindow.appendChild(status);
+
+    outputContainer.appendChild(outputWindow);
+
+    outputWindows.set(commandId, {
+      window: outputWindow,
+      content: content,
+      status: status,
+      serverId: serverId
+    });
+
+    return windowId;
   }
 
-  // New function to handle command execution in background
-  async function executeCommandInBackground(command, servers, isComplex, isNeglected) {
-    try {
-      for (const serverId of servers) {
-        const res = await fetch(`/set_command/${serverId}`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-          },
-          body: JSON.stringify({ command })
-        });
-        if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
-
-        const { command_id } = await res.json();
-
-        // Create output window for this command
-        createOutputWindow(command, serverId, command_id);
-
-        // Wait 3 seconds before starting to monitor the result
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        // Start monitoring the command result
-        monitorCommandResult(serverId, command_id, isComplex, isNeglected);
-      }
-    } catch (error) {
-      alert(error.message);
-    }
-  }
-
-  // Function to monitor command result
+  // CHANGED: Added monitorCommandResult function
   async function monitorCommandResult(serverId, commandId, isComplex, isNeglected) {
     // For neglected commands, don't wait for output
     if (isNeglected) {
@@ -277,6 +169,83 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
     }
   }
 
+  // Function to update output window content
+  function updateOutputWindow(commandId, content, status = null) {
+    const windowData = outputWindows.get(commandId);
+    if (windowData) {
+      windowData.content.value = content;
+      if (status) {
+        windowData.status.textContent = status;
+        windowData.status.className = `output-status ${status.toLowerCase()}`;
+      }
+    }
+  }
+
+  // New function to handle command execution in background
+  async function executeCommandInBackground(command, servers, isComplex, isNeglected, friendlyName) {  // CHANGED: added friendlyName parameter
+    try {
+      for (const serverId of servers) {
+        const res = await fetch(`/set_command/${serverId}`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({ command })
+        });
+        if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
+
+        const { command_id } = await res.json();
+
+        // CHANGED: pass friendlyName to createOutputWindow
+        createOutputWindow(command, serverId, command_id, friendlyName);
+
+        // Wait 3 seconds before starting to monitor the result
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Start monitoring the command result
+        monitorCommandResult(serverId, command_id, isComplex, isNeglected);
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  // CHANGED: update call to executeCommandInBackground to pass friendlyName
+  async function sendCommand() {
+    const commandInput = document.getElementById('command-input');
+    const command = commandInput.value.trim();
+
+    let isComplex = false;
+    let isNeglected = false;
+    let isWip = false;
+    const commandListItems = document.querySelectorAll('#command-list .nested-list li');
+    commandListItems.forEach(item => {
+      if (item.classList.contains('selected') || item === document.activeElement) {
+        if (item.dataset.complex === 'true') isComplex = true;
+        if (item.dataset.neglect === 'true') isNeglected = true;
+        if (item.dataset.wip === 'true') isWip = true;
+      }
+      if (item.dataset && item.dataset.script && command.includes(item.dataset.script)) {
+        if (item.dataset.complex === 'true') isComplex = true;
+        if (item.dataset.neglect === 'true') isNeglected = true;
+        if (item.dataset.wip === 'true') isWip = true;
+      }
+    });
+
+    if (selectedServers.size === 0 || !command) {
+      alert("Оберіть хоча б один сервер та введіть команду.");
+      return;
+    }
+
+    if (isWip) {
+      alert("Дана команда поки недоступна");
+      return;
+    }
+
+    // CHANGED: pass window.lastClickedCommandText as friendlyName
+    await executeCommandInBackground(command, selectedServers, isComplex, isNeglected, window.lastClickedCommandText);
+  }
 
   window.sendCommand = sendCommand;
 

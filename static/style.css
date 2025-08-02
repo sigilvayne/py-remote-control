@@ -226,10 +226,6 @@ header {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.output-title{
-    padding-left:.5rem;
-}
-
 .output-header {
     background-color: var(--bg-dark);
     border-bottom: 1px solid var(--border-color);
@@ -239,6 +235,20 @@ header {
     align-items: center;
     font-weight: bold;
     font-size: var(--font-size-small);
+}
+
+.output-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-left: .5rem;
+}
+
+.output-header-left .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 .output-close {
@@ -580,6 +590,10 @@ ul.nested-list li:hover {
 
 .handy-icon{
     background:url(/static/images/handyman_24dp_007ACC_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
+}
+
+.shield-icon{
+    background:url(/static/images/shield_person_24dp_007ACC_FILL0_wght400_GRAD0_opsz24.svg) no-repeat center;
 }
 
 /*-------------------------------Base page css styling----------------------------*/
