@@ -182,34 +182,42 @@ document.querySelectorAll('.folder-label').forEach(label => {
   }
 
   // New function to handle command execution in background
-  async function executeCommandInBackground(command, servers, isComplex, isNeglected, friendlyName) {  // CHANGED: added friendlyName parameter
+  async function executeCommandInBackground(command, servers, isComplex, isNeglected, friendlyName) {
     try {
+      const promises = [];
+
       for (const serverId of servers) {
-        const res = await fetch(`/set_command/${serverId}`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-          },
-          body: JSON.stringify({ command })
-        });
-        if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
+        const promise = (async () => {
+          const res = await fetch(`/set_command/${serverId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ command })
+          });
 
-        const { command_id } = await res.json();
+          if (!res.ok) throw new Error(`Помилка при надсиланні команди на сервер ${serverId}`);
 
-        // CHANGED: pass friendlyName to createOutputWindow
-        createOutputWindow(command, serverId, command_id, friendlyName);
+          const { command_id } = await res.json();
 
-        // Wait 3 seconds before starting to monitor the result
-        await new Promise(resolve => setTimeout(resolve, 3000));
+          createOutputWindow(command, serverId, command_id, friendlyName);
 
-        // Start monitoring the command result
-        monitorCommandResult(serverId, command_id, isComplex, isNeglected);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+
+          monitorCommandResult(serverId, command_id, isComplex, isNeglected);
+        })();
+
+        promises.push(promise);
       }
+
+      // Можна чекати завершення всіх, або залишити без await
+      await Promise.all(promises);
     } catch (error) {
       alert(error.message);
     }
   }
+
 
   // CHANGED: update call to executeCommandInBackground to pass friendlyName
   async function sendCommand() {
