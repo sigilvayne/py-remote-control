@@ -1,28 +1,27 @@
-$rdpRules = Get-NetFirewallRule | Where-Object {
-    $_.DisplayName -match 'RDPGuard' -or $_.Description -match 'RDPGuard'
-}
+﻿$cli = "C:\Program Files (x86)\RdpGuard\rdpguard-cli.exe"
+$outFile = "$PSScriptRoot\blocked_ips.json"
 
-$rdpDetailed = @()
-foreach ($rule in $rdpRules) {
-    $filters = Get-NetFirewallAddressFilter -AssociatedNetFirewallRule $rule
-    foreach ($filter in $filters) {
-        $rdpDetailed += [PSCustomObject]@{
-            RuleName   = $rule.DisplayName
-            Direction  = $rule.Direction
-            RemoteIP   = $filter.RemoteAddress
-        }
+$arguments = @(
+    "/ip",
+    "export",
+    "json",
+    "`"$outFile`""
+)
+
+& "$cli" @arguments
+
+if (Test-Path $outFile) {
+    $json = Get-Content $outFile -Raw | ConvertFrom-Json
+
+    if ($json.BlockedIPList) {
+        $ips = $json.BlockedIPList | Select-Object -ExpandProperty IP
+
+        Write-Output "Blocked IPs: $($ips.Count)"
+        Write-Output ""
+        $ips | ForEach-Object { Write-Output $_ }
+    } else {
+        Write-Output "No blocked IPs found."
     }
+} else {
+    Write-Error "File not created. Check if RdpGuard is installed and CLI is available."
 }
-
-$finalReport = @"
-RDP GUARD BLOCKED IP PREVIEW:
-Total RDPGuard-related Rules Found: $($rdpRules.Count)
-Blocked IP Entries Found: $($rdpDetailed.Count)
-
-Details:
-$($rdpDetailed | Format-Table -AutoSize | Out-String)
-
-ℹ️ No changes were made. This is only a preview.
-"@
-
-Write-Output $finalReport

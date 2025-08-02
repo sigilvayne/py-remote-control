@@ -1,27 +1,12 @@
+﻿$cli = "C:\Program Files (x86)\RdpGuard\rdpguard-cli.exe"
 
-$rdpRules = Get-NetFirewallRule | Where-Object { $_.DisplayName -like "RDPGuard*" }
-
-
-$blockedIPs = @()
-foreach ($rule in $rdpRules) {
-    if ($rule.DisplayName -match '\b(\d{1,3}(\.\d{1,3}){3})\b') {
-        $blockedIPs += $Matches[1]
-    } else {
-        $blockedIPs += "(unknown IP in rule: $($rule.DisplayName))"
-    }
+if (-not (Test-Path $cli)) {
+    Write-Error "RDP guard not found: $cli"
+    exit 1
 }
 
-$count = $rdpRules.Count
-$rdpRules | Remove-NetFirewallRule -Confirm:$false
+$arguments = @("/ip", "unblock", "*")
 
-$finalReport = @"
-RDP GUARD UNBLOCK REPORT:
-Firewall Rules Removed: $count
+& "$cli" @arguments
 
-Unblocked IPs:
-$($blockedIPs -join "`n")
-
-✅ All RDPGuard-related blocks were removed from Windows Firewall.
-"@
-
-Write-Output $finalReport
+Write-Output "`nIPs unblocked!"

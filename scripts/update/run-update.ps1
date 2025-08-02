@@ -1,4 +1,4 @@
-Import-Module PSWindowsUpdate
+﻿Import-Module PSWindowsUpdate
 
 $updates = Get-WindowsUpdate -MicrosoftUpdate -IgnoreUserInput -AcceptAll -Download -Install -AutoReboot:$false -ErrorAction SilentlyContinue
 
