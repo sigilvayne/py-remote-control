@@ -77,16 +77,16 @@
                 <li>
                     <span class="folder-label folder"><span class="icon hive-icon"></span>Medoс</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="medoc/download-medoc-update.ps1" data-desc="Завантажує останнє оновлення для програми M.E.Doc." data-dynamic="medoc-download">Завантажити оновлення</li>
-                        <li data-script="medoc/medoc-update.exe" data-desc="Запускає процес оновлення програми M.E.Doc.">Запустити оновлення</li>
+                        <li data-script="medoc/download-medoc-update.ps1" data-desc="Завантажує останнє оновлення для програми M.E.Doc." data-dynamic="medoc-download" data-wip="true">Завантажити оновлення</li>
+                        <li data-wip="true" data-desc="Запускає процес оновлення програми M.E.Doc.">Запустити оновлення</li>
                         <li data-script="medoc/read-medoc-log.ps1" data-desc="Перевіряє та виводить поточну версію програми M.E.Doc із журналу.">Перевірити версію</li>
                     </ul>
                 </li>
                 <li>
                     <span class="folder-label folder"><span class="icon update-icon"></span>Оновлення</span>
                     <ul class="nested-list collapsed">
+                        <li data-script="update/install-updater.ps1" data-desc="Інсталювати необхідні модулі для роботи оновлення Windows через PowerShell, такі як NuGet та PSWindowsUpdate" data-complex="true">Інсталяція модуля оновлень</li>
                         <li data-script="update/search-updates.ps1" data-desc="Шукає доступні оновлення Windows та антивірусу." data-complex="true">Пошук оновлень</li>
-                        <li data-script="update/tail-logs.ps1" data-desc="Виводить останні записи з журналу оновлень.">Прочитати логи оновлення</li>
                         <li data-script="update/run-update.ps1" data-desc="Встановлює всі доступні оновлення Windows та антивірусу." data-complex="true">Інсталювати оновлення</li>
                     </ul>
                 </li>
@@ -126,6 +126,7 @@
                 <li>
                     <span class="folder-label folder"><span class="icon guard-icon"></span>RDP Guard</span>
                     <ul class="nested-list collapsed">
+                        <li data-script="rdpguard/rdpguard-checkblocked.ps1" data-desc="Перевіряє чи є заблоковані IP-адреси в фаєрволі.">Перевірити заблоковані IP</li>
                         <li data-script="rdpguard/rdpguard-unlock.ps1" data-desc="Розблоковує всі IP-адреси, заблоковані RDP Guard.">Розблокувати усі IP</li>
                         <li data-script="rdpguard/rdpguard-check-license.ps1" data-desc="Перевіряє стан ліцензії RDP Guard.">Перевірити ліцензію</li>
                         <li data-script="rdpguard/rdpguard-restore-license.ps1" data-desc="Оновлює або відновлює ліцензію RDP Guard.">Оновити ліцензію</li>

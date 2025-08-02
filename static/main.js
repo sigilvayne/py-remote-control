@@ -76,20 +76,28 @@ document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
 
     let isComplex = false;
     let isNeglected = false;
+    let isWip = false;
     const commandListItems = document.querySelectorAll('#command-list .nested-list li');
     commandListItems.forEach(item => {
       if (item.classList.contains('selected') || item === document.activeElement) {
         if (item.dataset.complex === 'true') isComplex = true;
         if (item.dataset.neglect === 'true') isNeglected = true;
+        if (item.dataset.wip === 'true') isWip = true;
       }
       if (item.dataset && item.dataset.script && command.includes(item.dataset.script)) {
         if (item.dataset.complex === 'true') isComplex = true;
         if (item.dataset.neglect === 'true') isNeglected = true;
+        if (item.dataset.wip === 'true') isWip = true;
       }
     });
 
     if (selectedServers.size === 0 || !command) {
       alert("Оберіть хоча б один сервер та введіть команду.");
+      return;
+    }
+
+    if (isWip) {
+      alert("Дана команда поки недоступна");
       return;
     }
 

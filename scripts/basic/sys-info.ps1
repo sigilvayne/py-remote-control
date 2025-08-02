@@ -1,26 +1,44 @@
-﻿# Повна інформація про систему, мережу та ресурси
-$hostname = $env:COMPUTERNAME
-$ip = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.InterfaceAlias -notlike "*Loopback*" -and $_.IPAddress -ne $null}).IPAddress
+﻿$cpuCores = (Get-CimInstance Win32_Processor | Measure-Object -Property NumberOfCores -Sum).Sum
+$ramGB = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 0)
+$diskGB = [math]::Round((Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'").Size / 1GB, 0)
+$resources = "$cpuCores/$ramGB/$diskGB"
+
 $os = Get-CimInstance Win32_OperatingSystem
-$cpu = Get-CimInstance Win32_Processor
-$ram = "{0:N2} GB" -f (($os.TotalVisibleMemorySize) / 1MB)
+$osVersion = "$($os.Caption) $($os.Version) $($os.OSArchitecture)"
 
-Write-Host "=== Системна інформація ==="
-Write-Host "Ім’я комп’ютера: $hostname"
-Write-Host "Операційна система: $($os.Caption) $($os.OSArchitecture)"
-Write-Host "Версія: $($os.Version)"
-Write-Host "Час останнього запуску: $($os.LastBootUpTime)"
-Write-Host "Процесор: $($cpu.Name)"
-Write-Host "Оперативна пам’ять: $ram"
+$serviceName = "Zabbix Agent"
+$service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+$serviceStatus = if ($service) { $service.Status } else { "Not found" }
 
-Write-Host "`n=== Мережа ==="
-Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.IPAddress -ne "127.0.0.1"} | Format-Table InterfaceAlias, IPAddress
+$uptime = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+$uptimeSpan = (Get-Date) - ([Management.ManagementDateTimeConverter]::ToDateTime($uptime))
+$uptimeFormatted = "{0} days, {1} hours, {2} minutes" -f $uptimeSpan.Days, $uptimeSpan.Hours, $uptimeSpan.Minutes
 
-Write-Host "`n=== Відкриті порти ==="
-netstat -ano | Select-String LISTENING
+$sessions = (quser.exe 2>$null) -replace '\s{2,}', ' ' | Select-Object -Skip 1
+$activeUsersCount = if ($sessions) { ($sessions | Measure-Object).Count } else { 0 }
 
-Write-Host "`n=== Дисковий простір ==="
-Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{Name='Size(GB)';Expression={"{0:N2}" -f ($_.Used+$_.Free/1GB)}}, @{Name='Free(GB)';Expression={"{0:N2}" -f ($_.Free/1GB)}}
+$processNames = @("1cv8s", "ezvit")
+$userProcesses = @()
 
-Write-Host "`n=== Активні мережеві з'єднання ==="
-Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State, OwningProcess | Format-Table -AutoSize
+foreach ($sessionLine in $sessions) {
+    $parts = $sessionLine.Split(' ')
+    $username = $parts[0]
+
+    $userProcs = Get-Process -IncludeUserName -ErrorAction SilentlyContinue | Where-Object {
+        $_.UserName -like "*\$username" -and ($processNames -contains $_.ProcessName)
+    }
+
+    foreach ($proc in $processNames) {
+        $hasProc = if ($userProcs.ProcessName -contains $proc) { "yes" } else { "no" }
+        $userProcesses += "$hasProc : $username : $proc"
+    }
+}
+
+Write-Output "Resources: $cpuCores cores, $ramGB GB RAM, $diskGB GB disk"
+Write-Output "Resources (cores/ram/disk): $resources"
+Write-Output "OS version: $osVersion"
+Write-Output "Service $serviceName status: $serviceStatus"
+Write-Output "Uptime: $uptimeFormatted"
+Write-Output "Active users count: $activeUsersCount"
+Write-Output "Processes 1cv8s, ezvit running per user:"
+$userProcesses | Sort-Object | ForEach-Object { Write-Output $_ }
