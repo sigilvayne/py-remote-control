@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedServers = new Set();
   const outputWindows = new Map(); // Для збереження output windows по command_id
   let commandCounter = 0; // Counter для унікальних ID команд
+  const isMobileQuery = window.matchMedia('(max-width: 768px)');
+    function isMobile() {
+      return isMobileQuery.matches;
+    }
 
   //-----------------------Folder toggling---------------------------//
 document.querySelectorAll('.folder-label').forEach(label => {
@@ -59,80 +63,168 @@ document.querySelectorAll('.folder-label').forEach(label => {
   });
 
   // Function to create a new output window
-  function createOutputWindow(command, serverId, commandId, friendlyName) {  // CHANGED: added friendlyName parameter
-    const outputContainer = document.querySelector('.output-container');
-    const windowId = `output-${commandCounter++}`;
+function createOutputWindow(command, serverId, commandId, friendlyName) {
+  const outputContainer = document.querySelector('.output-container');
+  const windowId = `output-${commandCounter++}`;
 
-    const outputWindow = document.createElement('div');
-    outputWindow.className = 'output-window';
-    outputWindow.id = windowId;
+  const outputWindow = document.createElement('div');
+  outputWindow.className = 'output-window';
+  outputWindow.id = windowId;
 
-    const header = document.createElement('div');
-    header.className = 'output-header';
+  const header = document.createElement('div');
+  header.className = 'output-header';
 
-    // Container for icon + title text
-    const headerLeft = document.createElement('div');
-    headerLeft.className = 'output-header-left';
+  const headerLeft = document.createElement('div');
+  headerLeft.className = 'output-header-left';
 
-    // CHANGED: Create icon span and add saved icon class
-    const iconSpan = document.createElement('span');
-    iconSpan.classList.add('icon');
-    if (window.lastClickedIconClass) {
-      iconSpan.classList.add(window.lastClickedIconClass);
-    } else {
-      iconSpan.classList.add('cmd-icon');
-    }
-
-    // CHANGED: Use passed friendlyName or fallback command for title
-    const titleText = friendlyName || command;
-
-    const title = document.createElement('div');
-    title.className = 'output-title';
-    title.textContent = `${serverId} - ${titleText}`;
-
-    headerLeft.appendChild(iconSpan);
-    headerLeft.appendChild(title);
-
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'output-close';
-    closeBtn.setAttribute('aria-label', 'Close output window');
-    closeBtn.innerHTML = `
-      <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666">
-        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
-      </svg>
-    `;
-    closeBtn.onclick = () => {
-      outputWindow.remove();
-      outputWindows.delete(commandId);
-    };
-
-    header.appendChild(headerLeft);
-    header.appendChild(closeBtn);
-
-    const content = document.createElement('textarea');
-    content.className = 'output-content';
-    content.placeholder = 'Waiting for output...';
-    content.readOnly = true;
-
-    const status = document.createElement('span');
-    status.className = 'output-status running';
-    status.textContent = 'Running';
-
-    outputWindow.appendChild(header);
-    outputWindow.appendChild(content);
-    outputWindow.appendChild(status);
-
-    outputContainer.appendChild(outputWindow);
-
-    outputWindows.set(commandId, {
-      window: outputWindow,
-      content: content,
-      status: status,
-      serverId: serverId
-    });
-
-    return windowId;
+  const iconSpan = document.createElement('span');
+  iconSpan.classList.add('icon');
+  if (window.lastClickedIconClass) {
+    iconSpan.classList.add(window.lastClickedIconClass);
+  } else {
+    iconSpan.classList.add('cmd-icon');
   }
+
+  const titleText = friendlyName || command;
+  const title = document.createElement('div');
+  title.className = 'output-title';
+  title.textContent = `${serverId} - ${titleText}`;
+
+  headerLeft.appendChild(iconSpan);
+  headerLeft.appendChild(title);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'output-close';
+  closeBtn.setAttribute('aria-label', 'Close output window');
+  closeBtn.innerHTML = `
+    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#666">
+      <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+    </svg>
+  `;
+  closeBtn.onclick = () => {
+    outputWindow.remove();
+    outputWindows.delete(commandId);
+  };
+
+  const svgEnterFullscreen = `
+    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#007acc">
+      <path d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z"/>
+    </svg>
+  `;
+
+  const svgExitFullscreen = `
+    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#007acc">
+      <path d="M240-120v-120H120v-80h200v200h-80Zm400 0v-200h200v80H720v120h-80ZM120-640v-80h120v-120h80v200H120Zm520 0v-200h80v120h120v80H640Z"/>
+    </svg>
+  `;
+
+  const fullscreenBtn = document.createElement('button');
+  fullscreenBtn.className = 'output-fullscreen-btn';
+  fullscreenBtn.setAttribute('aria-label', 'Toggle fullscreen');
+  fullscreenBtn.innerHTML = svgEnterFullscreen;
+
+  // CHANGED: Added scroll position save/restore
+let lastScrollTop = 0;
+let lastPageScrollY = 0;
+
+fullscreenBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const section = document.querySelector('.output-section');
+
+  const currentlyFullscreen = document.querySelector('.output-window.fullscreen');
+  if (currentlyFullscreen && currentlyFullscreen !== outputWindow) {
+    currentlyFullscreen.classList.remove('fullscreen');
+    const otherBtn = currentlyFullscreen.querySelector('.output-fullscreen-btn');
+    if (otherBtn) otherBtn.innerHTML = svgEnterFullscreen;
+  }
+
+  const isNowFullscreen = outputWindow.classList.toggle('fullscreen');
+
+  if (isNowFullscreen) {
+  if (isMobile()) {
+    lastPageScrollY = window.scrollY;
+    document.body.classList.add('no-scroll');
+    document.body.style.top = `-${lastPageScrollY}px`;
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  } else {
+    lastScrollTop = section.scrollTop;
+    section.classList.add('lock-scroll');
+    section.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  fullscreenBtn.innerHTML = svgExitFullscreen;
+} else {
+  if (isMobile()) {
+    document.body.classList.remove('no-scroll');
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+
+    // ✅ Scroll directly to the output window instead of fixed Y offset
+    if (outputWindow.parentElement) {
+      outputWindow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo(0, lastPageScrollY);
+    }
+  } else {
+    section.classList.remove('lock-scroll');
+
+    // Only restore scroll if no other fullscreen windows are open
+    const otherFullscreen = document.querySelector('.output-window.fullscreen');
+    if (!otherFullscreen) {
+      if (outputWindow.parentElement) {
+        outputWindow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        section.scrollTo({ top: lastScrollTop, behavior: 'smooth' });
+      }
+    }
+  }
+  fullscreenBtn.innerHTML = svgEnterFullscreen;
+}
+});
+
+  header.appendChild(headerLeft);
+
+  const headerButtons = document.createElement('div');
+  headerButtons.className = 'output-header-buttons';
+  headerButtons.appendChild(fullscreenBtn);
+  headerButtons.appendChild(closeBtn);
+
+  header.appendChild(headerButtons);
+
+  const content = document.createElement('textarea');
+  content.className = 'output-content';
+  content.placeholder = 'Waiting for output...';
+  content.readOnly = true;
+
+  const status = document.createElement('span');
+  status.className = 'output-status running';
+  status.textContent = 'Running';
+
+  outputWindow.appendChild(header);
+  outputWindow.appendChild(content);
+  outputWindow.appendChild(status);
+
+  outputContainer.appendChild(outputWindow);
+
+  outputWindows.set(commandId, {
+    window: outputWindow,
+    content: content,
+    status: status,
+    serverId: serverId
+  });
+
+  return windowId;
+}
+
+// CHANGED: Add outside click handler once, to close any fullscreen output window when clicking outside
+document.addEventListener('click', (e) => {
+  const fullscreenWindow = document.querySelector('.output-window.fullscreen');
+  if (fullscreenWindow && !fullscreenWindow.contains(e.target)) {
+    fullscreenWindow.classList.remove('fullscreen');
+  }
+});
+
 
   // CHANGED: Added monitorCommandResult function
   async function monitorCommandResult(serverId, commandId, isComplex, isNeglected) {
