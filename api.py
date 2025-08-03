@@ -164,11 +164,37 @@ def health():
 
 #---------------------Server Management-------------------#
 
+import json
+
 @app.route('/servers')
 @login_required
 def list_servers():
-    servers = Server.query.order_by(Server.created_at.desc()).all()
-    return jsonify([s.server_id for s in servers])
+    username = session.get('username')
+    if not username:
+        return {"error": "User not logged in"}, 403
+
+    # Завантажуємо користувачів з файлу
+    with open(users_path, 'r') as f:
+        users = json.load(f)
+
+    if username not in users:
+        return {"error": "User not found"}, 404
+
+    user_server_ids = users[username].get('servers', [])
+
+    # Запит лише серверів, які є у списку користувача
+    servers = Server.query.filter(Server.id.in_(user_server_ids)).order_by(Server.created_at.desc()).all()
+
+    # Формуємо список для JSON відповіді
+    servers_list = []
+    for server in servers:
+        servers_list.append({
+            "id": server.id,
+            "server_id": server.server_id,
+            "control_url": server.control_url
+        })
+
+    return {"servers": servers_list}
 
 @csrf.exempt
 @app.route('/register_server', methods=['POST'])

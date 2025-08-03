@@ -352,7 +352,8 @@ document.addEventListener('click', (e) => {
   //-----------------------Load servers---------------------------//
   async function loadServers() {
     const res = await fetch('/servers');
-    const servers = await res.json();
+    const data = await res.json();
+    const servers = data.servers || [];
     const list = document.getElementById('server-list');
     const emptyText = document.getElementById('empty-server-text');
     const toggleSelectBtn = document.getElementById('toggle-select-all');
@@ -368,15 +369,15 @@ document.addEventListener('click', (e) => {
 
       servers.forEach(server => {
         const li = document.createElement('li');
-        li.textContent = server;
-        li.classList.add('server-item')
+        li.textContent = server.server_id; // або інше поле, яке хочеш показати
+        li.classList.add('server-item');
 
         li.addEventListener('click', () => {
           li.classList.toggle('selected');
-          if (selectedServers.has(server)) {
-            selectedServers.delete(server);
+          if (selectedServers.has(server.id)) {
+            selectedServers.delete(server.id);
           } else {
-            selectedServers.add(server);
+            selectedServers.add(server.id);
           }
           updateToggleSelectButton();
         });
@@ -384,9 +385,8 @@ document.addEventListener('click', (e) => {
         list.appendChild(li);
       });
     }
-
-    updateToggleSelectButton();
   }
+
 
   // Select/Deselect all toggle button
   const toggleSelectBtn = document.getElementById('toggle-select-all');
