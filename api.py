@@ -198,6 +198,36 @@ def delete_server(server_id):
     db.session.commit()
     return redirect(url_for('base'))
 
+#---------------------Server Web Management-------------------#
+
+@csrf.exempt
+@app.route('/add_server_web', methods=['POST'])
+@login_required  
+def add_server_web():
+    data = request.get_json()
+    server_id = data.get("server_id")
+    control_url = data.get("control_center_url")
+
+    if not server_id or not control_url:
+        return jsonify({"status": "error", "message": "Missing fields"}), 400
+
+    existing = Server.query.filter_by(server_id=server_id).first()
+    if existing:
+        return jsonify({"status": "exists", "message": "Server already registered"})
+
+    new_server = Server(server_id=server_id, control_url=control_url)
+    db.session.add(new_server)
+    db.session.commit()
+    return jsonify({"status": "ok", "message": "Server added via web"}), 201
+
+
+@csrf.exempt
+@app.route('/add_server_form')
+@login_required  
+def add_server_form():
+    return render_template('add-server.html')
+
+
 #---------------------Commands-------------------#
 
 commands = {}
