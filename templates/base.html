@@ -46,7 +46,7 @@
 
     </header>
   
-   <main class="server-container">
+<main class="server-container">
   <h1 class="server-h1">Список серверів</h1>
 
   {% if servers|length == 0 %}
@@ -71,6 +71,24 @@
           <div class="server-card-div">
             <span class="card-label">Control URL:</span>
             <span class="card-value">{{ s.control_url }}</span>
+          </div>
+          <div class="server-card-div">
+            <span class="card-label">Назва у 1С:</span>
+            <span class="card-value">{{ s.one_c_name or '—' }}</span>
+          </div>
+          <div class="server-card-div">
+            <span class="card-label">Створено користувачем:</span>
+            <span class="card-value">{{ s.created_by or '—' }}</span>
+          </div>
+          <div class="server-card-div">
+            <span class="card-label">Доступний для:</span>
+            <span class="card-value">
+              {% if s.usable_by %}
+                {{ s.usable_by.replace(',', ', ') }}
+              {% else %}
+                —
+              {% endif %}
+            </span>
           </div>
           <div class="server-card-div">
             <span class="card-label">Дата реєстрації:</span>

@@ -39,7 +39,7 @@ class Server(db.Model):
 
     usable_by = db.Column(db.String(500), nullable=True) 
     created_by = db.Column(db.String(100), nullable=True)  
-    onec = db.Column(db.String(200), nullable=True)   
+    one_c_name = db.Column(db.String(200), nullable=True)   
 
     def __repr__(self):
         return f"<Server {self.server_id}>"
@@ -179,7 +179,7 @@ def register_server():
     data = request.get_json()
     server_id = data.get("server_id")
     control_url = data.get("control_center_url")
-    one_c_name = data.get("onec_name")
+    one_c_name = data.get("one_c_name")
     created_by = data.get("created_by")
     usable_by = data.get("usable_by")  # список або рядок
 
@@ -219,7 +219,7 @@ def add_server_web():
     data = request.get_json()
     server_id = data.get("server_id")
     control_url = data.get("control_center_url")
-    one_c_name = data.get("onec_name")
+    one_c_name = data.get("one_c_name")
     usable_by = data.get("usable_by")
 
     if not server_id or not control_url:
@@ -302,6 +302,12 @@ def get_medoc_version():
         return jsonify({"error": str(e)}), 500
 
 #---------------------Start-------------------#
+
+def create_tables():
+    with app.app_context():
+        db.create_all()
+
+create_tables()
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8000)

@@ -14,6 +14,6 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       AGENT_TOKEN: ${AGENT_TOKEN}
     volumes:
-      - ./dev-data:/app/data
+      - ./data:/app/data
       - ./secrets/user.json:/app/user.json:rw
     restart: unless-stopped

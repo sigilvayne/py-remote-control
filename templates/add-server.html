@@ -54,8 +54,8 @@
         <label for="control_center_url">Control Center URL:</label>
         <input type="text" id="control_center_url" name="control_center_url" required>
 
-        <label for="onec_name">Назва у 1С:</label>
-        <input type="text" id="onec_name" name="onec_name">
+        <label for="one_c_name">Назва у 1С:</label>
+        <input type="text" id="one_c_name" name="one_c_name">
 
         <label for="usable_by">Доступний для (через кому):</label>
         <input type="text" id="usable_by" name="usable_by" placeholder="наприклад: admin,user1,user2">
@@ -71,7 +71,7 @@
 
             const server_id = document.getElementById('server_id').value.trim();
             const control_url = document.getElementById('control_center_url').value.trim();
-            const one_c_name = document.getElementById('onec_name').value.trim();
+            const one_c_name = document.getElementById('one_c_name').value.trim();
             const usable_by_raw = document.getElementById('usable_by').value.trim();
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -87,7 +87,7 @@
                 body: JSON.stringify({
                     server_id: server_id,
                     control_center_url: control_url,
-                    "onec_name": one_c_name,
+                    "one_c_name": one_c_name,
                     usable_by: usable_by
                 })
             })
