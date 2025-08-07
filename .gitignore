@@ -14,10 +14,13 @@ infra/.terraform.lock.hcl
 
 override.tf
 override.tf.json
-*_override.tf
+*_override.tf   
 *_override.tf.json
 
 scripts/variables/
 /data/servers.db
 
 user.json
+secrets/
+dev-data/
+.env

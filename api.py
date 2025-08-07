@@ -37,11 +37,13 @@ class Server(db.Model):
     control_url = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    usable_by = db.Column(db.String(500), nullable=True) 
+    created_by = db.Column(db.String(100), nullable=True)  
+    one_c_name = db.Column(db.String(200), nullable=True)   
+
     def __repr__(self):
         return f"<Server {self.server_id}>"
 
-with app.app_context():
-    db.create_all()
 
 #---------------------User Management (JSON)-------------------#
 
@@ -177,6 +179,9 @@ def register_server():
     data = request.get_json()
     server_id = data.get("server_id")
     control_url = data.get("control_center_url")
+    one_c_name = data.get("one_c_name")
+    created_by = data.get("created_by")
+    usable_by = data.get("usable_by")  # список або рядок
 
     if not server_id or not control_url:
         return jsonify({"status": "error", "message": "Missing fields"}), 400
@@ -185,10 +190,17 @@ def register_server():
     if existing:
         return jsonify({"status": "exists", "message": "Server already registered"})
 
-    new_server = Server(server_id=server_id, control_url=control_url)
+    new_server = Server(
+        server_id=server_id,
+        control_url=control_url,
+        one_c_name=one_c_name,
+        created_by=created_by,
+        usable_by=",".join(usable_by) if isinstance(usable_by, list) else usable_by
+    )
     db.session.add(new_server)
     db.session.commit()
     return jsonify({"status": "ok", "message": "Server registered"}), 201
+
 
 @app.route('/delete_server/<int:server_id>', methods=['POST'])
 @login_required
@@ -197,6 +209,43 @@ def delete_server(server_id):
     db.session.delete(server)
     db.session.commit()
     return redirect(url_for('base'))
+
+#---------------------Server Web Management-------------------#
+
+@csrf.exempt
+@app.route('/add_server_web', methods=['POST'])
+@login_required
+def add_server_web():
+    data = request.get_json()
+    server_id = data.get("server_id")
+    control_url = data.get("control_center_url")
+    one_c_name = data.get("one_c_name")
+    usable_by = data.get("usable_by")
+
+    if not server_id or not control_url:
+        return jsonify({"status": "error", "message": "Missing fields"}), 400
+
+    existing = Server.query.filter_by(server_id=server_id).first()
+    if existing:
+        return jsonify({"status": "exists", "message": "Server already registered"})
+
+    new_server = Server(
+        server_id=server_id,
+        control_url=control_url,
+        one_c_name=one_c_name,
+        created_by=session.get("username", "unknown"),
+        usable_by=",".join(usable_by) if isinstance(usable_by, list) else usable_by
+    )
+    db.session.add(new_server)
+    db.session.commit()
+    return jsonify({"status": "ok", "message": "Server added via web"}), 201
+
+@csrf.exempt
+@app.route('/add_server_form')
+@login_required  
+def add_server_form():
+    return render_template('add-server.html')
+
 
 #---------------------Commands-------------------#
 
@@ -253,6 +302,12 @@ def get_medoc_version():
         return jsonify({"error": str(e)}), 500
 
 #---------------------Start-------------------#
+
+def create_tables():
+    with app.app_context():
+        db.create_all()
+
+create_tables()
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8000)

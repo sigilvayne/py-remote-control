@@ -1,5 +1,19 @@
+version: "3.9"
+
 services:
-  web:
-    build: .
+  control-center-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: control-center-dev
     ports:
-     - "8000:8000"
+      - "8000:8000"
+    environment:
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      AGENT_TOKEN: ${AGENT_TOKEN}
+    volumes:
+      - ./data:/app/data
+      - ./secrets/user.json:/app/user.json:rw
+    restart: unless-stopped
