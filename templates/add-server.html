@@ -20,10 +20,13 @@
         h2 {
             margin-bottom: 20px;
         }
+        label {
+            font-weight: bold;
+        }
         input[type="text"] {
             width: 100%;
             padding: 10px;
-            margin-top: 10px;
+            margin-top: 5px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -51,6 +54,12 @@
         <label for="control_center_url">Control Center URL:</label>
         <input type="text" id="control_center_url" name="control_center_url" required>
 
+        <label for="onec_name">Назва у 1С:</label>
+        <input type="text" id="onec_name" name="onec_name">
+
+        <label for="usable_by">Доступний для (через кому):</label>
+        <input type="text" id="usable_by" name="usable_by" placeholder="наприклад: admin,user1,user2">
+
         <button type="submit">Додати сервер</button>
     </form>
 
@@ -60,9 +69,14 @@
         document.getElementById('serverForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const server_id = document.getElementById('server_id').value;
-            const control_url = document.getElementById('control_center_url').value;
+            const server_id = document.getElementById('server_id').value.trim();
+            const control_url = document.getElementById('control_center_url').value.trim();
+            const one_c_name = document.getElementById('onec_name').value.trim();
+            const usable_by_raw = document.getElementById('usable_by').value.trim();
+
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const usable_by = usable_by_raw ? usable_by_raw.split(',').map(s => s.trim()).filter(Boolean) : [];
 
             fetch('/add_server_web', {
                 method: 'POST',
@@ -72,7 +86,9 @@
                 },
                 body: JSON.stringify({
                     server_id: server_id,
-                    control_center_url: control_url
+                    control_center_url: control_url,
+                    "onec_name": one_c_name,
+                    usable_by: usable_by
                 })
             })
             .then(response => response.json())
@@ -81,6 +97,7 @@
                 if (data.status === 'ok') {
                     resBox.textContent = 'Сервер успішно додано!';
                     resBox.style.color = 'green';
+                    document.getElementById('serverForm').reset();
                 } else {
                     resBox.textContent = 'Помилка: ' + data.message;
                     resBox.style.color = 'red';
