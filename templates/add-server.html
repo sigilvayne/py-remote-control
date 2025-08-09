@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Додати сервер</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="icon" type="image/png" href="/static/images/icon.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #f4f4f4;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0057b7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #response {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Додати новий сервер</h2>
+    <form id="serverForm">
+        <label for="server_id">Server ID:</label>
+        <input type="text" id="server_id" name="server_id" required>
+
+        <label for="control_center_url">Control Center URL:</label>
+        <input type="text" id="control_center_url" name="control_center_url" required>
+
+        <button type="submit">Додати сервер</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('serverForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const server_id = document.getElementById('server_id').value;
+            const control_url = document.getElementById('control_center_url').value;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch('/add_server_web', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    server_id: server_id,
+                    control_center_url: control_url
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resBox = document.getElementById('response');
+                if (data.status === 'ok') {
+                    resBox.textContent = 'Сервер успішно додано!';
+                    resBox.style.color = 'green';
+                } else {
+                    resBox.textContent = 'Помилка: ' + data.message;
+                    resBox.style.color = 'red';
+                }
+            })
+            .catch(error => {
+                console.error('Помилка запиту:', error);
+                document.getElementById('response').textContent = 'Помилка з’єднання';
+                document.getElementById('response').style.color = 'red';
+            });
+        });
+    </script>
+</body>
+</html>
