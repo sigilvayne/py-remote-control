@@ -1,0 +1,66 @@
+name: Build and Deploy Vite Frontend
+
+on:
+  push:
+    branches:
+      - frontend
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set image tag from commit SHA
+      run: echo "IMAGE_TAG=frontend-${{ github.sha }}" >> $GITHUB_ENV
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push Docker image (frontend)
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.frontend
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control-frontend:${{ env.IMAGE_TAG }}
+        no-cache: true
+
+  deploy-to-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install SSH key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+    - name: Deploy and run Docker container on EC2 (frontend)
+      env:
+        IMAGE_TAG: frontend-${{ github.sha }}
+      run: |
+        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} "
+          IMAGE_TAG=${IMAGE_TAG}
+
+          sudo yum update -y
+          sudo yum install -y docker
+          sudo systemctl enable docker
+          sudo systemctl start docker
+          sudo usermod -a -G docker ec2-user
+
+          sudo docker stop control-center-frontend || true
+          sudo docker rm control-center-frontend || true
+          sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control-frontend:\$IMAGE_TAG || true
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control-frontend:\$IMAGE_TAG
+
+          sudo docker run -d -p 5173:5173 \
+            --name control-center-frontend \
+            ${{ secrets.DOCKERHUB_USERNAME }}/py-remote-control-frontend:\$IMAGE_TAG
+        "
