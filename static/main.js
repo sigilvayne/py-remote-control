@@ -388,6 +388,29 @@ document.addEventListener('click', (e) => {
     updateToggleSelectButton();
   }
 
+  // ------------------Add tooltips from data-desc------------------ //
+const tooltip = document.getElementById('tooltip');
+
+document.querySelectorAll('#command-list li[data-desc]').forEach(li => {
+  li.addEventListener('mouseenter', () => {
+    if (window.matchMedia('(hover: none)').matches) return;
+
+    tooltip.textContent = li.getAttribute('data-desc');
+    tooltip.classList.add('visible');
+
+    const rect = li.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+    tooltip.style.left = (rect.left + scrollLeft + rect.width / 2) + 'px';
+    tooltip.style.top = (rect.top + scrollTop - tooltip.offsetHeight - 6) + 'px';
+  });
+
+  li.addEventListener('mouseleave', () => {
+    tooltip.classList.remove('visible');
+  });
+});
+
   // Select/Deselect all toggle button
   const toggleSelectBtn = document.getElementById('toggle-select-all');
   if (toggleSelectBtn) {
