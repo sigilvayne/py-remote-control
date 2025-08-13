@@ -24,7 +24,6 @@
                 <li class="nav-item"><a href="{{ url_for('index') }}">Керування</a></li>
                 <li class="nav-item"><a href="{{ url_for('base') }}">База серверів</a></li>
                 <li class="nav-item"><a href="{{ url_for('monitoring') }}">Моніторинг</a></li>
-                <li class="nav-item"><a href="{{ url_for('user_control') }}">Користувачі</a></li>
             </ul>
 
         <div class="user-info-mobile">
@@ -76,8 +75,6 @@
                 <li>
                     <span class="folder-label folder"><span class="icon hive-icon"></span>Medoс</span>
                     <ul class="nested-list collapsed">
-                        <li data-script="medoc/download-medoc-update.ps1" data-desc="Завантажує останнє оновлення для програми M.E.Doc." data-dynamic="medoc-download" data-wip="true">Завантажити оновлення</li>
-                        <li data-wip="true" data-desc="Запускає процес оновлення програми M.E.Doc.">Запустити оновлення</li>
                         <li data-script="medoc/read-medoc-log.ps1" data-desc="Перевіряє та виводить поточну версію програми M.E.Doc із журналу.">Перевірити версію</li>
                     </ul>
                 </li>
