@@ -1,36 +1,39 @@
 ﻿$cpuCores = (Get-CimInstance Win32_Processor | Measure-Object -Property NumberOfCores -Sum).Sum
-$ramGB = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 0)
-$diskGB = [math]::Round((Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'").Size / 1GB, 0)
+$ramGB    = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 0)
+$diskGB   = [math]::Round((Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'").Size / 1GB, 0)
 $resources = "$cpuCores/$ramGB/$diskGB"
 
 $os = Get-CimInstance Win32_OperatingSystem
 $osVersion = "$($os.Caption) $($os.Version) $($os.OSArchitecture)"
+$uptimeSpan = (Get-Date) - ([Management.ManagementDateTimeConverter]::ToDateTime($os.LastBootUpTime))
+$uptimeFormatted = "{0} days, {1} hours, {2} minutes" -f $uptimeSpan.Days, $uptimeSpan.Hours, $uptimeSpan.Minutes
 
 $serviceName = "Zabbix Agent"
 $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 $serviceStatus = if ($service) { $service.Status } else { "Not found" }
 
-$uptime = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
-$uptimeSpan = (Get-Date) - ([Management.ManagementDateTimeConverter]::ToDateTime($uptime))
-$uptimeFormatted = "{0} days, {1} hours, {2} minutes" -f $uptimeSpan.Days, $uptimeSpan.Hours, $uptimeSpan.Minutes
-
-$sessions = (quser.exe 2>$null) -replace '\s{2,}', ' ' | Select-Object -Skip 1
-$activeUsersCount = if ($sessions) { ($sessions | Measure-Object).Count } else { 0 }
+$sessionsRaw = (quser.exe 2>$null) -replace '\s{2,}', ' ' | Select-Object -Skip 1
+$activeUsersCount = if ($sessionsRaw) { ($sessionsRaw | Measure-Object).Count } else { 0 }
 
 $processNames = @("1cv8s", "ezvit")
 $userProcesses = @()
 
-foreach ($sessionLine in $sessions) {
-    $parts = $sessionLine.Split(' ')
-    $username = $parts[0]
+if ($sessionsRaw) {
+    $allProcs = Get-Process -IncludeUserName -ErrorAction SilentlyContinue |
+        Where-Object { $_.UserName -ne $null }
 
-    $userProcs = Get-Process -IncludeUserName -ErrorAction SilentlyContinue | Where-Object {
-        $_.UserName -like "*\$username" -and ($processNames -contains $_.ProcessName)
-    }
+    foreach ($sessionLine in $sessionsRaw) {
+        $parts = $sessionLine.Split(' ')
+        $username = $parts[0]
 
-    foreach ($proc in $processNames) {
-        $hasProc = if ($userProcs.ProcessName -contains $proc) { "yes" } else { "no" }
-        $userProcesses += "$hasProc : $username : $proc"
+        $matchingProcs = $allProcs | Where-Object {
+            $_.UserName -match "\\$username$" -or $_.UserName -eq $username
+        }
+
+        foreach ($procName in $processNames) {
+            $hasProc = if ($matchingProcs.ProcessName -contains $procName) { "yes" } else { "no" }
+            $userProcesses += "$hasProc : $username : $procName"
+        }
     }
 }
 
